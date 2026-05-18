@@ -1,0 +1,26 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+  freshrss:
+    image: {{ freshrss_image }}
+    container_name: freshrss
+    restart: unless-stopped
+    networks:
+      - backend_media
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.freshrss.rule=Host(`{{ freshrss_host }}.{{ domain }}`)"
+      - "traefik.http.routers.freshrss.entrypoints=websecure"
+      - "traefik.http.routers.freshrss.tls.certresolver=letsencrypt"
+      - "traefik.http.services.freshrss.loadbalancer.server.port=80"

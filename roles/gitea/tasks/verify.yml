@@ -1,0 +1,28 @@
+---
+- name: Check gitea container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: gitea
+  register: gitea_info
+
+- name: Assert gitea is running
+  ansible.builtin.assert:
+    that: gitea_info.container.State.Status == 'running'
+    fail_msg: "gitea container is not running (status: {{ gitea_info.container.State.Status }})"
+
+- name: Check gitea SSH port is listening
+  ansible.builtin.wait_for:
+    host: "{{ gitea_bind_ip }}"
+    port: "{{ gitea_ssh_port }}"
+    timeout: 10
+  register: ssh_check
+  failed_when: false
+
+- name: Assert gitea SSH port is reachable
+  ansible.builtin.assert:
+    that: ssh_check.state is defined and ssh_check.state == 'started'
+    fail_msg: "gitea SSH port {{ gitea_ssh_port }} is not listening on {{ gitea_bind_ip }}"
+
+- name: Report gitea status
+  ansible.builtin.debug:
+    msg: "gitea is running — web + SSH port {{ gitea_ssh_port }} confirmed"

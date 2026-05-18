@@ -1,0 +1,33 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  gitea:
+    image: {{ gitea_image }}
+    container_name: gitea
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    ports:
+      - "{{ gitea_bind_ip }}:{{ gitea_ssh_port }}:22"
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+      - GITEA__database__DB_TYPE=sqlite3
+      - GITEA__server__DOMAIN={{ gitea_host }}.{{ domain }}
+      - GITEA__server__SSH_DOMAIN={{ gitea_host }}.{{ domain }}
+      - GITEA__server__ROOT_URL=https://{{ gitea_host }}.{{ domain }}
+      - GITEA__server__SSH_PORT={{ gitea_ssh_port }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.gitea.rule=Host(`{{ gitea_host }}.{{ domain }}`)"
+      - "traefik.http.routers.gitea.entrypoints=websecure"
+      - "traefik.http.routers.gitea.tls.certresolver=letsencrypt"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"

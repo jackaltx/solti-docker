@@ -1,0 +1,22 @@
+---
+gitea_state: present
+
+gitea_image: "gitea/gitea:latest"
+gitea_host: "gitea"
+gitea_ssh_port: "2222"
+gitea_bind_ip: "127.0.0.1"
+
+service_properties:
+  name: "gitea"
+  project_dir: "{{ install_root }}/Projects/gitea"
+  stack_dir: "{{ install_root }}/Stacks/gitea"
+  secrets_file: "{{ install_root }}/Secrets/gitea.env"
+  container_names:
+    - "gitea"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ gitea_image }}"

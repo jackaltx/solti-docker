@@ -16,6 +16,9 @@ SUPPORTED_SERVICES=(
     cyberchef
     it-tools
     ladder
+    freshrss
+    homarr
+    gitea
 )
 
 usage() {

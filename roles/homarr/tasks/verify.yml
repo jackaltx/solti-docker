@@ -1,0 +1,15 @@
+---
+- name: Check homarr container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: homarr
+  register: homarr_info
+
+- name: Assert homarr is running
+  ansible.builtin.assert:
+    that: homarr_info.container.State.Status == 'running'
+    fail_msg: "homarr container is not running (status: {{ homarr_info.container.State.Status }})"
+
+- name: Report homarr status
+  ansible.builtin.debug:
+    msg: "homarr is running — uptime: {{ homarr_info.container.State.StartedAt }}"

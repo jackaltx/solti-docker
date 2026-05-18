@@ -1,0 +1,2 @@
+---
+homarr_secret_key: "{{ lookup('env', 'HOMARR_SECRET_KEY') }}"

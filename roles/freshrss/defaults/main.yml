@@ -1,0 +1,20 @@
+---
+freshrss_state: present
+
+freshrss_image: "lscr.io/linuxserver/freshrss:latest"
+freshrss_host: "rss"
+
+service_properties:
+  name: "freshrss"
+  project_dir: "{{ install_root }}/Projects/freshrss"
+  stack_dir: "{{ install_root }}/Stacks/freshrss"
+  secrets_file: "{{ install_root }}/Secrets/freshrss.env"
+  container_names:
+    - "freshrss"
+  compose_networks:
+    - "backend_media"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ freshrss_image }}"

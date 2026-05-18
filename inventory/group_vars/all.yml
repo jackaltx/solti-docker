@@ -2,6 +2,11 @@
 domain: "{{ lookup('env', 'LAB_TLD') | default('a0a0.org', true) }}"
 mylab_nolog: true
 
+# PUID/PGID for LinuxServer.io and similar images — override per host group
+service_puid: "1000"
+service_pgid: "1000"
+service_tz: "America/Chicago"
+
 # Default install root — overridden per host group below
 install_root: "{{ ansible_facts['user_dir'] }}/Docker"
 install_root_owner: "{{ ansible_user }}"

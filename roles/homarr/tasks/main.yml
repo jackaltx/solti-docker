@@ -1,0 +1,36 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "homarr_state must be one of: prepare, present, absent"
+  when: homarr_state not in ['prepare', 'present', 'absent']
+
+- name: Validate required secrets
+  ansible.builtin.fail:
+    msg: "HOMARR_SECRET_KEY env var must be set before deploying homarr"
+  when:
+    - homarr_state == 'present'
+    - homarr_secret_key == ''
+
+- name: Prepare Homarr
+  when: homarr_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy Homarr
+  when: homarr_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove Homarr
+  when: homarr_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

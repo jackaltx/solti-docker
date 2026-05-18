@@ -19,6 +19,9 @@ SUPPORTED_SERVICES=(
     cyberchef
     it-tools
     ladder
+    freshrss
+    homarr
+    gitea
 )
 
 SUPPORTED_ACTIONS=(prepare deploy remove)

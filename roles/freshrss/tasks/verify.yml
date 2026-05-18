@@ -1,0 +1,15 @@
+---
+- name: Check freshrss container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: freshrss
+  register: freshrss_info
+
+- name: Assert freshrss is running
+  ansible.builtin.assert:
+    that: freshrss_info.container.State.Status == 'running'
+    fail_msg: "freshrss container is not running (status: {{ freshrss_info.container.State.Status }})"
+
+- name: Report freshrss status
+  ansible.builtin.debug:
+    msg: "freshrss is running — uptime: {{ freshrss_info.container.State.StartedAt }}"

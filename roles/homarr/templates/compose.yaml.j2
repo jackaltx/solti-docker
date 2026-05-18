@@ -1,0 +1,25 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+  homarr:
+    image: {{ homarr_image }}
+    container_name: homarr
+    restart: unless-stopped
+    networks:
+      - backend_media
+    env_file:
+      - {{ service_properties.secrets_file }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}:/appdata
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.homarr.rule=Host(`{{ homarr_host }}.{{ domain }}`)"
+      - "traefik.http.routers.homarr.entrypoints=websecure"
+      - "traefik.http.routers.homarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.homarr.loadbalancer.server.port=7575"

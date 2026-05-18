@@ -1,0 +1,23 @@
+---
+homarr_state: present
+
+homarr_image: "ghcr.io/homarr-labs/homarr:latest"
+homarr_host: "home"
+
+# SECRET_ENCRYPTION_KEY — set via: export HOMARR_SECRET_KEY=...
+homarr_secret_key: "{{ lookup('env', 'HOMARR_SECRET_KEY') }}"
+
+service_properties:
+  name: "homarr"
+  project_dir: "{{ install_root }}/Projects/homarr"
+  stack_dir: "{{ install_root }}/Stacks/homarr"
+  secrets_file: "{{ install_root }}/Secrets/homarr.env"
+  container_names:
+    - "homarr"
+  compose_networks:
+    - "backend_media"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ homarr_image }}"
