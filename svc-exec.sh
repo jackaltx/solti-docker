@@ -23,6 +23,7 @@ SUPPORTED_SERVICES=(
     minio
     conduit
     obsidian
+    jellyfin
     traefik
 )
 

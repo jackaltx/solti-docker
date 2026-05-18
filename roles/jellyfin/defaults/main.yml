@@ -1,0 +1,25 @@
+---
+jellyfin_state: present
+
+jellyfin_image: "jellyfin/jellyfin:latest"
+jellyfin_host: "jellyfin"
+
+# Media library root — override per host in inventory
+jellyfin_media_root: "{{ ansible_facts['user_dir'] }}/Media"
+
+service_properties:
+  name: "jellyfin"
+  project_dir: "{{ install_root }}/Projects/jellyfin"
+  stack_dir: "{{ install_root }}/Stacks/jellyfin"
+  secrets_file: "{{ install_root }}/Secrets/jellyfin.env"
+  container_names:
+    - "jellyfin"
+  compose_networks:
+    - "backend_media"
+  dirs:
+    - {path: "config", mode: "0755"}
+    - {path: "cache",  mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ jellyfin_image }}"

@@ -1,0 +1,24 @@
+---
+- name: Check jellyfin container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: jellyfin
+  register: jellyfin_info
+
+- name: Assert jellyfin is running
+  ansible.builtin.assert:
+    that: jellyfin_info.container.State.Status == 'running'
+    fail_msg: "jellyfin is not running (status: {{ jellyfin_info.container.State.Status }})"
+
+# Jellyfin exposes /health on port 8096 inside the container
+- name: Check jellyfin health endpoint
+  become: "{{ docker_become }}"
+  ansible.builtin.command:
+    cmd: docker exec jellyfin curl -sf http://localhost:8096/health
+  register: jellyfin_health
+  changed_when: false
+  failed_when: jellyfin_health.rc != 0
+
+- name: Report jellyfin status
+  ansible.builtin.debug:
+    msg: "jellyfin is healthy — media root: {{ jellyfin_media_root }}"

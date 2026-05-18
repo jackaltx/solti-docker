@@ -1,0 +1,25 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+  jellyfin:
+    image: {{ jellyfin_image }}
+    container_name: jellyfin
+    restart: unless-stopped
+    networks:
+      - backend_media
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/config:/config
+      - {{ service_properties.stack_dir }}/cache:/cache
+      - {{ jellyfin_media_root }}:/media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.jellyfin.rule=Host(`{{ jellyfin_host }}.{{ domain }}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.jellyfin.service=jellyfin"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
