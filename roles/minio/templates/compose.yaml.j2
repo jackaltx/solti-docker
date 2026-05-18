@@ -1,0 +1,31 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  minio:
+    image: {{ minio_image }}
+    container_name: minio
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    command: server /data --console-address ":9001"
+    env_file:
+      - {{ service_properties.secrets_file }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.minio-api.rule=Host(`{{ minio_api_host }}.{{ domain }}`)"
+      - "traefik.http.routers.minio-api.entrypoints=websecure"
+      - "traefik.http.routers.minio-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.minio-api.service=minio-api"
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-console.rule=Host(`{{ minio_console_host }}.{{ domain }}`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"

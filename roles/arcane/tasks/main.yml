@@ -1,0 +1,36 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "arcane_state must be one of: prepare, present, absent"
+  when: arcane_state not in ['prepare', 'present', 'absent']
+
+- name: Validate required secrets
+  ansible.builtin.fail:
+    msg: "ARCANE_ENCRYPTION_KEY and ARCANE_JWT_SECRET env vars must be set"
+  when:
+    - arcane_state == 'present'
+    - arcane_encryption_key == '' or arcane_jwt_secret == ''
+
+- name: Prepare Arcane
+  when: arcane_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy Arcane
+  when: arcane_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove Arcane
+  when: arcane_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

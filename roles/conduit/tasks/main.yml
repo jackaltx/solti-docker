@@ -1,0 +1,31 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "conduit_state must be one of: prepare, present, absent"
+  when: conduit_state not in ['prepare', 'present', 'absent']
+
+- name: Prepare Conduit
+  when: conduit_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy Conduit
+  when: conduit_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: prerequisites.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove Conduit
+  when: conduit_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

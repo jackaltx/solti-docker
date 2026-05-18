@@ -1,0 +1,25 @@
+---
+- name: Check conduit container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: conduit
+  register: conduit_info
+
+- name: Assert conduit is running
+  ansible.builtin.assert:
+    that: conduit_info.container.State.Status == 'running'
+    fail_msg: "conduit container is not running (status: {{ conduit_info.container.State.Status }})"
+
+- name: Check conduit.toml exists
+  ansible.builtin.stat:
+    path: "{{ service_properties.stack_dir }}/conduit.toml"
+  register: conduit_toml
+
+- name: Assert conduit.toml is present
+  ansible.builtin.assert:
+    that: conduit_toml.stat.exists
+    fail_msg: "conduit.toml not found at {{ service_properties.stack_dir }}/conduit.toml"
+
+- name: Report conduit status
+  ansible.builtin.debug:
+    msg: "conduit is running — server: {{ conduit_host }}.{{ domain }}"

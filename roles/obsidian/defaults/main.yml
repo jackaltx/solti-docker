@@ -1,0 +1,22 @@
+---
+obsidian_state: present
+
+obsidian_image: "lscr.io/linuxserver/obsidian:latest"
+obsidian_host: "obsidian1"
+
+service_properties:
+  name: "obsidian"
+  project_dir: "{{ install_root }}/Projects/obsidian"
+  stack_dir: "{{ install_root }}/Stacks/obsidian"
+  secrets_file: "{{ install_root }}/Secrets/obsidian.env"
+  container_names:
+    - "obsidian"
+  compose_networks:
+    - "backend_storage"
+  dirs:
+    - {path: "config", mode: "0755"}
+    - {path: "vaults", mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ obsidian_image }}"

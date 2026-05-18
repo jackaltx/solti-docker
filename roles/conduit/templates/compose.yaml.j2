@@ -1,0 +1,25 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  conduit:
+    image: {{ conduit_image }}
+    container_name: conduit
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    environment:
+      - CONDUIT_CONFIG=/etc/conduit.toml
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/conduit.toml:/etc/conduit.toml:ro
+      - {{ service_properties.stack_dir }}/db:/var/lib/matrix-conduit/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.conduit.rule=Host(`{{ conduit_host }}.{{ domain }}`)"
+      - "traefik.http.routers.conduit.entrypoints=websecure"
+      - "traefik.http.routers.conduit.tls.certresolver=letsencrypt"
+      - "traefik.http.services.conduit.loadbalancer.server.port={{ conduit_port }}"

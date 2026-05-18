@@ -1,0 +1,3 @@
+---
+arcane_encryption_key: "{{ lookup('env', 'ARCANE_ENCRYPTION_KEY') }}"
+arcane_jwt_secret: "{{ lookup('env', 'ARCANE_JWT_SECRET') }}"

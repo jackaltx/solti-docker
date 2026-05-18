@@ -1,0 +1,8 @@
+---
+- name: Template conduit.toml
+  ansible.builtin.template:
+    src: conduit.toml.j2
+    dest: "{{ service_properties.stack_dir }}/conduit.toml"
+    owner: "{{ install_root_owner }}"
+    mode: "0644"
+  notify: restart conduit

@@ -1,0 +1,3 @@
+---
+minio_root_user: "{{ lookup('env', 'MINIO_ROOT_USER') | default('minioadmin') }}"
+minio_root_password: "{{ lookup('env', 'MINIO_ROOT_PASSWORD') }}"

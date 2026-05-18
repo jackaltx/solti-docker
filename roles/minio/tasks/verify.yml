@@ -1,0 +1,24 @@
+---
+- name: Check minio container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: minio
+  register: minio_info
+
+- name: Assert minio is running
+  ansible.builtin.assert:
+    that: minio_info.container.State.Status == 'running'
+    fail_msg: "minio container is not running (status: {{ minio_info.container.State.Status }})"
+
+# Port 9000 is not exposed to the host — check via docker exec instead
+- name: Check minio health via docker exec
+  become: "{{ docker_become }}"
+  ansible.builtin.command:
+    cmd: docker exec minio curl -sf http://localhost:9000/minio/health/live
+  register: minio_health
+  changed_when: false
+  failed_when: minio_health.rc != 0
+
+- name: Report minio status
+  ansible.builtin.debug:
+    msg: "minio is running and healthy"

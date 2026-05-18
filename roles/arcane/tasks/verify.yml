@@ -1,0 +1,15 @@
+---
+- name: Check arcane container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: arcane
+  register: arcane_info
+
+- name: Assert arcane is running
+  ansible.builtin.assert:
+    that: arcane_info.container.State.Status == 'running'
+    fail_msg: "arcane container is not running (status: {{ arcane_info.container.State.Status }})"
+
+- name: Report arcane status
+  ansible.builtin.debug:
+    msg: "arcane is running — uptime: {{ arcane_info.container.State.StartedAt }}"

@@ -1,0 +1,31 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  arcane:
+    image: {{ arcane_image }}
+    container_name: arcane
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    environment:
+      - UMASK=002
+      - GIN_MODE=release
+      - ENVIRONMENT=production
+    env_file:
+      - {{ service_properties.secrets_file }}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ service_properties.stack_dir }}:/app/data
+      - {{ install_root }}/Projects:/app/data/projects
+      - {{ install_root }}/Stacks:/app/data/stacks
+      - {{ install_root }}/Secrets:{{ install_root }}/Secrets:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.arcane.rule=Host(`{{ arcane_host }}.{{ domain }}`)"
+      - "traefik.http.routers.arcane.entrypoints=websecure"
+      - "traefik.http.routers.arcane.tls.certresolver=letsencrypt"
+      - "traefik.http.services.arcane.loadbalancer.server.port=3552"

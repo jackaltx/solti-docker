@@ -1,0 +1,30 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  obsidian:
+    image: {{ obsidian_image }}
+    container_name: obsidian
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/config:/config
+      - {{ service_properties.stack_dir }}/vaults:/vaults
+    security_opt:
+      - seccomp:unconfined
+    shm_size: "1gb"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.obsidian.rule=Host(`{{ obsidian_host }}.{{ domain }}`)"
+      - "traefik.http.routers.obsidian.entrypoints=websecure"
+      - "traefik.http.routers.obsidian.tls.certresolver=letsencrypt"
+      - "traefik.http.services.obsidian.loadbalancer.server.port=3000"

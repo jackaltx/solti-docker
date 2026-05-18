@@ -1,0 +1,15 @@
+---
+- name: Check obsidian container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: obsidian
+  register: obsidian_info
+
+- name: Assert obsidian is running
+  ansible.builtin.assert:
+    that: obsidian_info.container.State.Status == 'running'
+    fail_msg: "obsidian container is not running (status: {{ obsidian_info.container.State.Status }})"
+
+- name: Report obsidian status
+  ansible.builtin.debug:
+    msg: "obsidian is running — uptime: {{ obsidian_info.container.State.StartedAt }}"

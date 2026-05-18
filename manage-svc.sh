@@ -22,6 +22,10 @@ SUPPORTED_SERVICES=(
     freshrss
     homarr
     gitea
+    arcane
+    minio
+    conduit
+    obsidian
 )
 
 SUPPORTED_ACTIONS=(prepare deploy remove)

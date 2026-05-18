@@ -1,0 +1,23 @@
+---
+arcane_state: present
+
+arcane_image: "ghcr.io/getarcaneapp/arcane:latest"
+arcane_host: "arcane1"
+
+arcane_encryption_key: "{{ lookup('env', 'ARCANE_ENCRYPTION_KEY') }}"
+arcane_jwt_secret: "{{ lookup('env', 'ARCANE_JWT_SECRET') }}"
+
+service_properties:
+  name: "arcane"
+  project_dir: "{{ install_root }}/Projects/arcane"
+  stack_dir: "{{ install_root }}/Stacks/arcane"
+  secrets_file: "{{ install_root }}/Secrets/arcane.env"
+  container_names:
+    - "arcane"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ arcane_image }}"

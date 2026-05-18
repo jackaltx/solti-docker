@@ -1,0 +1,24 @@
+---
+minio_state: present
+
+minio_image: "minio/minio:latest"
+minio_api_host: "s3-true"
+minio_console_host: "minio-true"
+
+minio_root_user: "{{ lookup('env', 'MINIO_ROOT_USER') | default('minioadmin') }}"
+minio_root_password: "{{ lookup('env', 'MINIO_ROOT_PASSWORD') }}"
+
+service_properties:
+  name: "minio"
+  project_dir: "{{ install_root }}/Projects/minio"
+  stack_dir: "{{ install_root }}/Stacks/minio"
+  secrets_file: "{{ install_root }}/Secrets/minio.env"
+  container_names:
+    - "minio"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ minio_image }}"

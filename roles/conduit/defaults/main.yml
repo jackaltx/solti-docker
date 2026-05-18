@@ -1,0 +1,28 @@
+---
+conduit_state: present
+
+conduit_image: "matrixconduit/matrix-conduit:latest"
+conduit_host: "conduit1"
+conduit_port: "6167"
+
+conduit_allow_registration: "true"
+conduit_allow_federation: "true"
+conduit_max_request_size: "20_000_000"
+conduit_max_concurrent_requests: "100"
+conduit_trusted_servers: ["matrix.org"]
+
+service_properties:
+  name: "conduit"
+  project_dir: "{{ install_root }}/Projects/conduit"
+  stack_dir: "{{ install_root }}/Stacks/conduit"
+  secrets_file: "{{ install_root }}/Secrets/conduit.env"
+  container_names:
+    - "conduit"
+  compose_networks:
+    - "backend_storage"
+  dirs:
+    - {path: "db", mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ conduit_image }}"
