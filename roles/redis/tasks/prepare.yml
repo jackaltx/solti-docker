@@ -1,0 +1,4 @@
+---
+- name: Base prepare
+  ansible.builtin.include_tasks:
+    file: "../_base/tasks/prepare.yml"

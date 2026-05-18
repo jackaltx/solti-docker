@@ -1,0 +1,47 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "redis_state must be one of: prepare, present, absent"
+  when: redis_state not in ['prepare', 'present', 'absent']
+
+# =============================================================
+# PREPARE — one-time directory setup
+# =============================================================
+- name: Prepare Redis
+  when: redis_state == 'prepare'
+  block:
+    - name: Base prepare
+      ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+# =============================================================
+# DEPLOY
+# =============================================================
+- name: Deploy Redis
+  when: redis_state == 'present'
+  block:
+    - name: Auto-prepare if directories missing
+      ansible.builtin.include_tasks:
+        file: prepare.yml
+      vars:
+        _check_only: true
+
+    - name: Template secrets file
+      ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+
+    - name: Deploy compose stack
+      ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+# =============================================================
+# REMOVE
+# =============================================================
+- name: Remove Redis
+  when: redis_state == 'absent'
+  block:
+    - name: Cleanup
+      ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

@@ -1,0 +1,10 @@
+---
+# TrueNAS: ansible_user=lavadmin, Docker services run as apps user (uid 568)
+# docker_become: true  — docker commands need sudo on TrueNAS
+# install_root_owner/group: "568" — directories must be owned by apps user
+# The expression (install_root_owner != ansible_user) evaluates true here,
+# so _base tasks automatically use become: true for mkdir/chown.
+docker_become: true
+install_root: "/mnt/zpool/Docker"
+install_root_owner: "568"
+install_root_group: "568"

@@ -1,0 +1,16 @@
+namespace: jackaltx
+name: solti_docker
+version: 0.1.0
+readme: README.md
+description: "Docker Compose service management using the SOLTI state-machine pattern"
+license:
+  - MIT
+tags:
+  - docker
+  - compose
+  - infrastructure
+  - traefik
+dependencies:
+  "community.docker": ">=3.0.0"
+repository: https://github.com/jackaltx/solti-docker
+issues: https://github.com/jackaltx/solti-docker/issues

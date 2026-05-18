@@ -1,0 +1,8 @@
+---
+# Redis service defaults
+redis_enable_commander: true
+redis_enable_insight: true
+
+# Password via shell env — export REDIS_PASSWORD=... before running manage-svc.sh
+# Empty string = no auth (open dev instance)
+redis_password: "{{ lookup('env', 'REDIS_PASSWORD') | default('') }}"

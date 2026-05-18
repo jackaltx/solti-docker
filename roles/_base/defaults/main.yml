@@ -1,0 +1,27 @@
+---
+# Install root — override per host in group_vars
+install_root: "{{ ansible_user_dir }}/Docker"
+
+# Ownership — on dockarr ansible_user owns everything;
+# on TrueNAS override to "568"/"568" for the apps user.
+install_root_owner: "{{ ansible_user }}"
+install_root_group: "{{ ansible_user }}"
+
+# Set true in group_vars/truenas.yml — docker commands need sudo there
+docker_become: false
+
+# Shared network name — traefik creates this; services reference it as external
+service_network: "backend_storage"
+
+# service_properties contract — filled by each service role's defaults/main.yml
+service_properties:
+  name: ""
+  project_dir: ""
+  stack_dir: ""
+  secrets_file: ""
+  container_names: []
+  compose_networks: []
+  dirs: []
+  delete_data: false
+  delete_images: false
+  images: []

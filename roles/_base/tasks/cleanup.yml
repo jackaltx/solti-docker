@@ -1,0 +1,25 @@
+---
+- name: Stop and remove service containers
+  become: "{{ docker_become }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ service_properties.project_dir }}"
+    state: absent
+    remove_volumes: false
+  failed_when: false
+
+- name: Remove compose.yaml from Projects dir
+  ansible.builtin.file:
+    path: "{{ service_properties.project_dir }}/compose.yaml"
+    state: absent
+
+- name: Remove secrets file
+  ansible.builtin.file:
+    path: "{{ service_properties.secrets_file }}"
+    state: absent
+
+- name: Remove service stack data directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ service_properties.stack_dir }}"
+    state: absent
+  when: service_properties.delete_data | bool

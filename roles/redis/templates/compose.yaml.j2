@@ -1,0 +1,73 @@
+# Ansible managed — do not edit directly
+# Source: jackaltx.solti_docker redis role
+networks:
+  backend_storage:
+    external: true
+
+services:
+  redis:
+    image: {{ redis_image }}
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    command: >-
+      redis-server
+      {% if redis_password != '' %}--requirepass {{ redis_password }}{% endif %}
+
+    env_file:
+      - {{ service_properties.secrets_file }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.redis.rule=Host(`{{ redis_host }}.{{ domain }}`)"
+      - "traefik.http.routers.redis.entrypoints=websecure"
+      - "traefik.http.routers.redis.tls.certresolver=letsencrypt"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
+
+{% if redis_enable_commander %}
+  redis_commander:
+    image: {{ redis_commander_image }}
+    container_name: redis-commander
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - backend_storage
+    environment:
+      - REDIS_HOST=redis
+{% if redis_password != '' %}
+      - REDIS_PASSWORD={{ redis_password }}
+{% endif %}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.redis_commander.rule=Host(`{{ redis_ui_host }}.{{ domain }}`)"
+      - "traefik.http.routers.redis_commander.entrypoints=websecure"
+      - "traefik.http.routers.redis_commander.tls.certresolver=letsencrypt"
+      - "traefik.http.services.redis_commander.loadbalancer.server.port=8081"
+{% endif %}
+
+{% if redis_enable_insight %}
+  redis_insight:
+    image: {{ redis_insight_image }}
+    container_name: redis-insight
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - backend_storage
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ install_root }}/Stacks/redis-insight:/db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.redis_insight.rule=Host(`{{ redis_insight_host }}.{{ domain }}`)"
+      - "traefik.http.routers.redis_insight.entrypoints=websecure"
+      - "traefik.http.routers.redis_insight.tls.certresolver=letsencrypt"
+      - "traefik.http.services.redis_insight.loadbalancer.server.port=5540"
+{% endif %}

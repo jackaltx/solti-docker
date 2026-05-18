@@ -1,0 +1,10 @@
+tmp/
+logs/
+*.tar.gz
+*.retry
+.env
+.envrc
+inventory/group_vars/*.local.yml
+__pycache__/
+*.pyc
+.pytest_cache/

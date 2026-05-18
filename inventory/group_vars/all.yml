@@ -1,0 +1,11 @@
+---
+domain: "{{ lookup('env', 'LAB_TLD') | default('a0a0.org', true) }}"
+mylab_nolog: true
+
+# Default install root — overridden per host group below
+install_root: "{{ ansible_user_dir }}/Docker"
+install_root_owner: "{{ ansible_user }}"
+install_root_group: "{{ ansible_user }}"
+
+# Docker commands do not require sudo by default
+docker_become: false

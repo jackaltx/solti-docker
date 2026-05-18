@@ -1,0 +1,50 @@
+---
+- name: Validate _base required variables
+  ansible.builtin.assert:
+    that:
+      - service_properties.name != ""
+      - service_properties.project_dir != ""
+      - service_properties.stack_dir != ""
+    fail_msg: "service_properties.name, project_dir, and stack_dir must all be defined"
+
+# become is a boolean expression: false on dockarr (ansible_user owns ~/Docker),
+# true on TrueNAS (lavadmin must sudo to chown dirs to apps user 568)
+- name: Ensure Projects directory exists
+  become: "{{ install_root_owner != ansible_user }}"
+  ansible.builtin.file:
+    path: "{{ service_properties.project_dir }}"
+    state: directory
+    owner: "{{ install_root_owner }}"
+    group: "{{ install_root_group }}"
+    mode: "0755"
+
+- name: Ensure Stacks directory exists
+  become: "{{ install_root_owner != ansible_user }}"
+  ansible.builtin.file:
+    path: "{{ service_properties.stack_dir }}"
+    state: directory
+    owner: "{{ install_root_owner }}"
+    group: "{{ install_root_group }}"
+    mode: "0755"
+
+- name: Ensure Secrets directory exists
+  become: "{{ install_root_owner != ansible_user }}"
+  ansible.builtin.file:
+    path: "{{ install_root }}/Secrets"
+    state: directory
+    owner: "{{ install_root_owner }}"
+    group: "{{ install_root_group }}"
+    mode: "0700"
+
+- name: Create service stack subdirectories
+  become: "{{ install_root_owner != ansible_user }}"
+  ansible.builtin.file:
+    path: "{{ service_properties.stack_dir }}/{{ dir_item.path }}"
+    state: directory
+    owner: "{{ install_root_owner }}"
+    group: "{{ install_root_group }}"
+    mode: "{{ dir_item.mode }}"
+  loop: "{{ service_properties.dirs }}"
+  loop_control:
+    loop_var: dir_item
+  when: service_properties.dirs | length > 0

@@ -1,0 +1,31 @@
+---
+- name: Check redis container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: redis
+  register: redis_info
+
+- name: Assert redis is running
+  ansible.builtin.assert:
+    that: redis_info.container.State.Status == 'running'
+    fail_msg: "redis container is not running (status: {{ redis_info.container.State.Status }})"
+
+- name: Ping redis
+  become: "{{ docker_become }}"
+  ansible.builtin.command:
+    cmd: >-
+      docker exec redis redis-cli
+      {% if redis_password != '' %}-a {{ redis_password }}{% endif %}
+      ping
+  register: redis_ping
+  changed_when: false
+  no_log: "{{ mylab_nolog | default(true) }}"
+
+- name: Assert ping returned PONG
+  ansible.builtin.assert:
+    that: "'PONG' in redis_ping.stdout"
+    fail_msg: "redis ping failed: {{ redis_ping.stdout }}"
+
+- name: Report redis status
+  ansible.builtin.debug:
+    msg: "Redis is healthy — ping: {{ redis_ping.stdout }}"

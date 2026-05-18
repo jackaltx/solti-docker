@@ -1,0 +1,35 @@
+---
+redis_state: present
+
+redis_image: "redis:latest"
+redis_commander_image: "ghcr.io/joeferner/redis-commander:latest"
+redis_insight_image: "redis/redisinsight:latest"
+
+redis_enable_commander: true
+redis_enable_insight: true
+
+# Traefik hostnames — override per host in inventory capability group
+redis_host: "redis"
+redis_ui_host: "redis-ui"
+redis_insight_host: "redis-insight"
+
+# Password — empty means no auth (dev default).
+# Set via: export REDIS_PASSWORD=... before running manage-svc.sh
+redis_password: "{{ lookup('env', 'REDIS_PASSWORD') | default('') }}"
+
+service_properties:
+  name: "redis"
+  project_dir: "{{ install_root }}/Projects/redis"
+  stack_dir: "{{ install_root }}/Stacks/redis"
+  secrets_file: "{{ install_root }}/Secrets/redis.env"
+  container_names:
+    - "redis"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ redis_image }}"
+    - "{{ redis_commander_image }}"
+    - "{{ redis_insight_image }}"

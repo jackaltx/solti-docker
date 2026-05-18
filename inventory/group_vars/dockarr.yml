@@ -1,0 +1,6 @@
+---
+# dockarr: ansible_user == docker_user — no privilege escalation needed
+docker_become: false
+install_root: "{{ ansible_user_dir }}/Docker"
+install_root_owner: "{{ ansible_user }}"
+install_root_group: "{{ ansible_user }}"
