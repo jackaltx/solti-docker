@@ -117,6 +117,40 @@ Full functional verification is a separate step via `svc-exec.sh verify`.
 - `install_root_owner: "568"` (apps user)
 - `docker_become: true` (sudo required for docker commands)
 
+## Planned Feature: Image Version Pinning
+
+Currently all roles default to `latest`. The intended pattern when version pinning
+is implemented is to split the image tag into its own variable in `defaults/main.yml`:
+
+```yaml
+# roles/redis/defaults/main.yml
+redis_image_tag: "latest"
+redis_image: "redis:{{ redis_image_tag }}"
+```
+
+Override per service in `group_vars/<service>_svc.yml` to pin globally:
+
+```yaml
+redis_image_tag: "7.2-alpine"
+```
+
+Or per host inline in `inventory/hosts.yml` to run different versions:
+
+```yaml
+redis_svc:
+  hosts:
+    dockarr:
+      redis_image_tag: "7.2-alpine"
+    truenas:
+      redis_image_tag: "latest"
+```
+
+Services with multiple images (redis, traefik) get one tag var per image:
+`redis_image_tag`, `redis_commander_image_tag`, `redis_insight_image_tag`.
+
+Implementation is a mechanical split of every `image: "name:tag"` in every
+`defaults/main.yml` — no logic changes required.
+
 ## Deploy Order When Starting Fresh
 
 Traefik must deploy first — it creates the `backend_storage` and `backend_media` Docker networks
