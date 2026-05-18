@@ -156,3 +156,64 @@ Implementation is a mechanical split of every `image: "name:tag"` in every
 Traefik must deploy first — it creates the `backend_storage` and `backend_media` Docker networks
 that all other services reference as `external: true`. Deploy traefik last when replacing an
 existing running instance.
+
+## Known Gotchas
+
+**rustfs uid 10001**: Runs as non-root uid 10001. `prerequisites.yml` must
+`become: true` to chown `Stacks/rustfs` before starting. Pattern to reuse
+for any image that runs as a non-root uid that doesn't match `ansible_user`.
+Also: rustfs requires auth on ALL endpoints (including health checks) — 403
+is the healthy response. Verify accepts `http_code in [200, 403]`.
+
+**rustfs log dir**: `RUSTFS_OBS_LOG_DIRECTORY` defaults to `/logs` (inside
+container root, read-only for uid 10001). Redirected to `/data/logs` in
+compose template to keep everything in the writable `/data` mount.
+
+**jellyfin disk guard**: Jellyfin v10.10+ refuses to start if less than 2 GiB
+free on the config path. Symptom: perpetual restarting. Fix: `docker image
+prune -a` to reclaim unused image layers, then `docker restart jellyfin`.
+
+**minio health check**: Port 9000 is not exposed to the host — health check
+must use `docker exec minio curl` not the `uri` module from the controller.
+
+**group_vars vs role defaults**: `service_puid`, `service_pgid`, `service_tz`
+must live in `group_vars/all.yml`, not `roles/_base/defaults/main.yml`. Role
+defaults are only loaded when that role runs — they are not shared across roles.
+
+**svc-exec.sh include_role**: Must use `include_role: tasks_from: verify` (not
+`include_tasks: verify.yml`) so role defaults load and `service_properties` is
+available inside verify tasks.
+
+**hyphenated service names**: `it-tools` style names require underscore
+conversion in two places in `manage-svc.sh` and `svc-exec.sh`: the `_svc`
+inventory group name and the `<service>_state` variable name.
+
+## Open Items for Review
+
+**TrueNAS**: `arr-stack` and `jellyfin` still on manual lab-docker-stack
+compose. Before migrating: decide on 568 ownership for media dirs and whether
+arr-stack VPN config (Gluetun + PIA) needs a dedicated role or stays manual.
+
+**jellyfin role**: Complete — but not tested on TrueNAS. `jellyfin_media_root`
+must be set to `/mnt/zpool/Media` in the `truenas` inventory entry.
+
+**openclaw**: Not added — user confirmed not needed at this time.
+
+**filebrowser**: Skipped — user looking for a replacement.
+
+**image version pinning**: Planned feature documented above. All roles
+currently use `latest`. Implement before any production TrueNAS migration.
+
+**minio vs rustfs**: Both roles exist. On TrueNAS decide which to use as the
+primary S3 store. They share the same port layout (9000/9001) so only one
+can run on a given host without Traefik hostname differentiation.
+
+**mongodb `mongodb_host_port`**: Defaults to `""` (no host exposure). Set to
+`"{{ traefik_bind_ip }}:27017"` in inventory if services outside the Docker
+network need direct connections.
+
+**traefik dashboard auth hash**: Stored as raw bcrypt (single `$`) in env var
+`TRAEFIK_DASHBOARD_AUTH`. Template uses `replace('$', '$$')` for compose
+label escaping. Regenerate with:
+`echo $(htpasswd -nb user password) | sed -e s/\\$/\\$\\$/g` then remove
+the extra `$` before exporting.
