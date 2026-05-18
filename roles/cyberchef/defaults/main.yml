@@ -1,0 +1,20 @@
+---
+cyberchef_state: present
+
+cyberchef_image: "mpepping/cyberchef:latest"
+cyberchef_host: "cyberchef"
+
+service_properties:
+  name: "cyberchef"
+  project_dir: "{{ install_root }}/Projects/cyberchef"
+  stack_dir: "{{ install_root }}/Stacks/cyberchef"
+  secrets_file: "{{ install_root }}/Secrets/cyberchef.env"
+  container_names:
+    - "cyberchef"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ cyberchef_image }}"

@@ -1,0 +1,20 @@
+---
+it_tools_state: present
+
+it_tools_image: "corentinth/it-tools:latest"
+it_tools_host: "it-tools"
+
+service_properties:
+  name: "it-tools"
+  project_dir: "{{ install_root }}/Projects/it-tools"
+  stack_dir: "{{ install_root }}/Stacks/it-tools"
+  secrets_file: "{{ install_root }}/Secrets/it-tools.env"
+  container_names:
+    - "it-tools"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ it_tools_image }}"

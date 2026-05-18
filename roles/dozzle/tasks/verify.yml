@@ -1,0 +1,15 @@
+---
+- name: Check dozzle container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: dozzle
+  register: dozzle_info
+
+- name: Assert dozzle is running
+  ansible.builtin.assert:
+    that: dozzle_info.container.State.Status == 'running'
+    fail_msg: "dozzle container is not running (status: {{ dozzle_info.container.State.Status }})"
+
+- name: Report dozzle status
+  ansible.builtin.debug:
+    msg: "dozzle is running — uptime: {{ dozzle_info.container.State.StartedAt }}"

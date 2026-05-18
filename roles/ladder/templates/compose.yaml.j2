@@ -1,0 +1,19 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+  ladder:
+    image: {{ ladder_image }}
+    container_name: ladder
+    restart: unless-stopped
+    networks:
+      - backend_media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.ladder.rule=Host(`{{ ladder_host }}.{{ domain }}`)"
+      - "traefik.http.routers.ladder.entrypoints=websecure"
+      - "traefik.http.routers.ladder.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ladder.loadbalancer.server.port=5000"

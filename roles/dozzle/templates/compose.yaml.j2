@@ -1,0 +1,26 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+  dozzle:
+    image: {{ dozzle_image }}
+    container_name: dozzle
+    restart: unless-stopped
+    networks:
+      - backend_media
+    environment:
+      - DOZZLE_LEVEL={{ dozzle_level }}
+      - DOZZLE_TAILSIZE={{ dozzle_tailsize }}
+      - DOZZLE_FILTER={{ dozzle_filter }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.dozzle.rule=Host(`{{ dozzle_host }}.{{ domain }}`)"
+      - "traefik.http.routers.dozzle.entrypoints=websecure"
+      - "traefik.http.routers.dozzle.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"

@@ -1,0 +1,21 @@
+---
+- name: Check cyberchef container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: cyberchef
+  register: cyberchef_info
+
+- name: Assert cyberchef is running
+  ansible.builtin.assert:
+    that: cyberchef_info.container.State.Status == 'running'
+    fail_msg: "cyberchef container is not running (status: {{ cyberchef_info.container.State.Status }})"
+
+- name: Assert cyberchef healthcheck is healthy
+  ansible.builtin.assert:
+    that: cyberchef_info.container.State.Health.Status == 'healthy'
+    fail_msg: "cyberchef healthcheck is not healthy (status: {{ cyberchef_info.container.State.Health.Status }})"
+  when: cyberchef_info.container.State.Health is defined
+
+- name: Report cyberchef status
+  ansible.builtin.debug:
+    msg: "cyberchef is running — uptime: {{ cyberchef_info.container.State.StartedAt }}"

@@ -1,0 +1,19 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  cyberchef:
+    image: {{ cyberchef_image }}
+    container_name: cyberchef
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.cyberchef.rule=Host(`{{ cyberchef_host }}.{{ domain }}`)"
+      - "traefik.http.routers.cyberchef.entrypoints=websecure"
+      - "traefik.http.routers.cyberchef.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cyberchef.loadbalancer.server.port=8000"

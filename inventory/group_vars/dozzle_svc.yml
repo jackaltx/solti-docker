@@ -1,0 +1,4 @@
+---
+dozzle_level: "info"
+dozzle_tailsize: "300"
+dozzle_filter: "status=running"

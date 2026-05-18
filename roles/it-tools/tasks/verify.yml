@@ -1,0 +1,15 @@
+---
+- name: Check it-tools container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: it-tools
+  register: it_tools_info
+
+- name: Assert it-tools is running
+  ansible.builtin.assert:
+    that: it_tools_info.container.State.Status == 'running'
+    fail_msg: "it-tools container is not running (status: {{ it_tools_info.container.State.Status }})"
+
+- name: Report it-tools status
+  ansible.builtin.debug:
+    msg: "it-tools is running — uptime: {{ it_tools_info.container.State.StartedAt }}"

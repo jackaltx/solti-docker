@@ -12,6 +12,10 @@ TMPDIR="${SCRIPT_DIR}/tmp"
 
 SUPPORTED_SERVICES=(
     redis
+    dozzle
+    cyberchef
+    it-tools
+    ladder
 )
 
 usage() {
@@ -56,10 +60,13 @@ mkdir -p "$TMPDIR"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 PLAYBOOK="${TMPDIR}/${SERVICE}-${TASK}-${TIMESTAMP}.yml"
 
+# Inventory group names use underscores; service names may use hyphens.
+SERVICE_GROUP="${SERVICE//-/_}_svc"
+
 if [[ -n "$HOST" ]]; then
     HOSTS_TARGET="$HOST"
 else
-    HOSTS_TARGET="${SERVICE}_svc"
+    HOSTS_TARGET="${SERVICE_GROUP}"
 fi
 
 cat > "$PLAYBOOK" <<EOF

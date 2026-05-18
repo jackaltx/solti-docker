@@ -1,0 +1,24 @@
+---
+dozzle_state: present
+
+dozzle_image: "amir20/dozzle:latest"
+dozzle_host: "dozzle"
+
+dozzle_level: "info"
+dozzle_tailsize: "300"
+dozzle_filter: "status=running"
+
+service_properties:
+  name: "dozzle"
+  project_dir: "{{ install_root }}/Projects/dozzle"
+  stack_dir: "{{ install_root }}/Stacks/dozzle"
+  secrets_file: "{{ install_root }}/Secrets/dozzle.env"
+  container_names:
+    - "dozzle"
+  compose_networks:
+    - "backend_media"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ dozzle_image }}"

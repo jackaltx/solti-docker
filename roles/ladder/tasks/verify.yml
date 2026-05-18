@@ -1,0 +1,15 @@
+---
+- name: Check ladder container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: ladder
+  register: ladder_info
+
+- name: Assert ladder is running
+  ansible.builtin.assert:
+    that: ladder_info.container.State.Status == 'running'
+    fail_msg: "ladder container is not running (status: {{ ladder_info.container.State.Status }})"
+
+- name: Report ladder status
+  ansible.builtin.debug:
+    msg: "ladder is running — uptime: {{ ladder_info.container.State.StartedAt }}"

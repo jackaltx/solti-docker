@@ -1,0 +1,20 @@
+---
+ladder_state: present
+
+ladder_image: "ghcr.io/wasi-master/13ft:latest"
+ladder_host: "ladder"
+
+service_properties:
+  name: "ladder"
+  project_dir: "{{ install_root }}/Projects/13-ft-ladder"
+  stack_dir: "{{ install_root }}/Stacks/ladder"
+  secrets_file: "{{ install_root }}/Secrets/ladder.env"
+  container_names:
+    - "ladder"
+  compose_networks:
+    - "backend_media"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ ladder_image }}"

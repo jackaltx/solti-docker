@@ -15,6 +15,10 @@ TMPDIR="${SCRIPT_DIR}/tmp"
 
 SUPPORTED_SERVICES=(
     redis
+    dozzle
+    cyberchef
+    it-tools
+    ladder
 )
 
 SUPPORTED_ACTIONS=(prepare deploy remove)
@@ -93,6 +97,11 @@ fi
 
 STATE="${STATE_MAP[$ACTION]}"
 
+# Inventory group names and Ansible variable names require underscores.
+# SERVICE_VAR is used for the <service>_state variable in generated playbooks.
+SERVICE_GROUP="${SERVICE//-/_}_svc"
+SERVICE_VAR="${SERVICE//-/_}"
+
 # ─── confirmation for remove ─────────────────────────────────────────────────
 
 if [[ "$ACTION" == "remove" && "$YES" == false ]]; then
@@ -113,7 +122,7 @@ PLAYBOOK="${TMPDIR}/${SERVICE}-${ACTION}-${TIMESTAMP}.yml"
 if [[ -n "$HOST" ]]; then
     HOSTS_TARGET="$HOST"
 else
-    HOSTS_TARGET="${SERVICE}_svc"
+    HOSTS_TARGET="${SERVICE_GROUP}"
 fi
 
 cat > "$PLAYBOOK" <<EOF
@@ -122,7 +131,7 @@ cat > "$PLAYBOOK" <<EOF
 - name: Manage ${SERVICE} service (${ACTION})
   hosts: ${HOSTS_TARGET}
   vars:
-    ${SERVICE}_state: ${STATE}
+    ${SERVICE_VAR}_state: ${STATE}
   roles:
     - role: ${SERVICE}
 EOF
