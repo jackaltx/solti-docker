@@ -12,8 +12,8 @@ services:
     networks:
       - backend_storage
     command: >-
-      redis-server
-      {% if redis_password != '' %}--requirepass {{ redis_password }}{% endif %}
+      redis-server{% if redis_password != '' %} --requirepass {{ redis_password }}{% endif %}
+
 
     env_file:
       - {{ service_properties.secrets_file }}
