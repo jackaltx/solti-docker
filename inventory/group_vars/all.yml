@@ -1,5 +1,5 @@
 ---
-domain: "{{ lookup('env', 'LAB_TLD') | default('a0a0.org', true) }}"
+domain: "{{ lookup('env', 'LAB_TLD') | default('example.com', true) }}"
 mylab_nolog: true
 
 # PUID/PGID for LinuxServer.io and similar images — override per host group
