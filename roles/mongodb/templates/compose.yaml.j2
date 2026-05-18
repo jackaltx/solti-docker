@@ -1,0 +1,44 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  mongodb:
+    image: {{ mongodb_image }}
+    container_name: mongodb
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    env_file:
+      - {{ service_properties.secrets_file }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/data:/data/db
+{% if mongodb_host_port != '' %}
+    ports:
+      - "{{ mongodb_host_port }}:27017"
+{% endif %}
+
+{% if mongodb_enable_gui %}
+  mongo-express:
+    image: {{ mongodb_express_image }}
+    container_name: mongo-express
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    depends_on:
+      - mongodb
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME={{ mongodb_root_user }}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD={{ mongodb_root_password }}
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASICAUTH=false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.mongo-express.rule=Host(`{{ mongodb_express_host }}.{{ domain }}`)"
+      - "traefik.http.routers.mongo-express.entrypoints=websecure"
+      - "traefik.http.routers.mongo-express.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mongo-express.loadbalancer.server.port=8081"
+{% endif %}

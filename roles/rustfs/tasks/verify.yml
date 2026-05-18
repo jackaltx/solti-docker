@@ -1,0 +1,29 @@
+---
+- name: Check rustfs container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: rustfs
+  register: rustfs_info
+
+- name: Assert rustfs is running
+  ansible.builtin.assert:
+    that: rustfs_info.container.State.Status == 'running'
+    fail_msg: "rustfs is not running (status: {{ rustfs_info.container.State.Status }})"
+
+# rustfs requires authentication on all endpoints including health checks.
+# 403 means the server is up and responding — that is sufficient.
+- name: Check rustfs API is responding
+  become: "{{ docker_become }}"
+  ansible.builtin.command:
+    cmd: docker exec rustfs curl -so /dev/null -w "%{http_code}" http://localhost:9000/health/live
+  register: rustfs_http_code
+  changed_when: false
+
+- name: Assert rustfs API responded
+  ansible.builtin.assert:
+    that: rustfs_http_code.stdout | int in [200, 403]
+    fail_msg: "rustfs API not responding (got: {{ rustfs_http_code.stdout }})"
+
+- name: Report rustfs status
+  ansible.builtin.debug:
+    msg: "rustfs is healthy — API: {{ rustfs_api_host }}.{{ domain }}"

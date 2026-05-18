@@ -1,0 +1,25 @@
+---
+rustfs_state: present
+
+rustfs_image: "rustfs/rustfs:latest"
+rustfs_api_host: "rustfs"
+rustfs_console_host: "rustfs-console"
+
+# Credentials via shell env: export RUSTFS_ACCESS_KEY=... RUSTFS_SECRET_KEY=...
+rustfs_access_key: "{{ lookup('env', 'RUSTFS_ACCESS_KEY') }}"
+rustfs_secret_key: "{{ lookup('env', 'RUSTFS_SECRET_KEY') }}"
+
+service_properties:
+  name: "rustfs"
+  project_dir: "{{ install_root }}/Projects/rustfs"
+  stack_dir: "{{ install_root }}/Stacks/rustfs"
+  secrets_file: "{{ install_root }}/Secrets/rustfs.env"
+  container_names:
+    - "rustfs"
+  compose_networks:
+    - "backend_storage"
+  dirs: []
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ rustfs_image }}"

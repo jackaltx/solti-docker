@@ -1,0 +1,38 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "rustfs_state must be one of: prepare, present, absent"
+  when: rustfs_state not in ['prepare', 'present', 'absent']
+
+- name: Validate required secrets
+  ansible.builtin.fail:
+    msg: "RUSTFS_ACCESS_KEY and RUSTFS_SECRET_KEY env vars must be set"
+  when:
+    - rustfs_state == 'present'
+    - rustfs_access_key == '' or rustfs_secret_key == ''
+
+- name: Prepare RustFS
+  when: rustfs_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy RustFS
+  when: rustfs_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: prerequisites.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove RustFS
+  when: rustfs_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

@@ -1,0 +1,10 @@
+---
+# rustfs runs as non-root uid 10001 — the data directory must be owned
+# by that uid or the container cannot write to it.
+- name: Set rustfs data dir ownership to uid 10001
+  become: true
+  ansible.builtin.file:
+    path: "{{ service_properties.stack_dir }}"
+    owner: "10001"
+    group: "10001"
+    mode: "0755"

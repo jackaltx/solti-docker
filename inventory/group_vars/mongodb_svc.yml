@@ -1,0 +1,4 @@
+---
+mongodb_root_user: "{{ lookup('env', 'MONGODB_ROOT_USER') | default('mongoadmin') }}"
+mongodb_root_password: "{{ lookup('env', 'MONGODB_ROOT_PASSWORD') }}"
+mongodb_enable_gui: true

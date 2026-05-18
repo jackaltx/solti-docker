@@ -25,6 +25,8 @@ SUPPORTED_SERVICES=(
     obsidian
     jellyfin
     traefik
+    rustfs
+    mongodb
 )
 
 usage() {

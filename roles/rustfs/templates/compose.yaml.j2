@@ -1,0 +1,34 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  rustfs:
+    image: {{ rustfs_image }}
+    container_name: rustfs
+    restart: unless-stopped
+    networks:
+      - backend_storage
+    command: /data
+    env_file:
+      - {{ service_properties.secrets_file }}
+    environment:
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_OBS_LOG_DIRECTORY=/data/logs
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.rustfs-api.rule=Host(`{{ rustfs_api_host }}.{{ domain }}`)"
+      - "traefik.http.routers.rustfs-api.entrypoints=websecure"
+      - "traefik.http.routers.rustfs-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.rustfs-api.service=rustfs-api"
+      - "traefik.http.services.rustfs-api.loadbalancer.server.port=9000"
+      - "traefik.http.routers.rustfs-console.rule=Host(`{{ rustfs_console_host }}.{{ domain }}`)"
+      - "traefik.http.routers.rustfs-console.entrypoints=websecure"
+      - "traefik.http.routers.rustfs-console.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.rustfs-console.service=rustfs-console"
+      - "traefik.http.services.rustfs-console.loadbalancer.server.port=9001"

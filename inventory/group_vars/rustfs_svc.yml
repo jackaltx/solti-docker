@@ -1,0 +1,3 @@
+---
+rustfs_access_key: "{{ lookup('env', 'RUSTFS_ACCESS_KEY') }}"
+rustfs_secret_key: "{{ lookup('env', 'RUSTFS_SECRET_KEY') }}"

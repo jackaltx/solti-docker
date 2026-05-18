@@ -1,0 +1,30 @@
+---
+- name: Check mongodb container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: mongodb
+  register: mongodb_info
+
+- name: Assert mongodb is running
+  ansible.builtin.assert:
+    that: mongodb_info.container.State.Status == 'running'
+    fail_msg: "mongodb is not running (status: {{ mongodb_info.container.State.Status }})"
+
+- name: Ping mongodb
+  become: "{{ docker_become }}"
+  ansible.builtin.command:
+    cmd: >-
+      docker exec mongodb mongosh
+      --username {{ mongodb_root_user }}
+      --password {{ mongodb_root_password }}
+      --authenticationDatabase admin
+      --eval "db.adminCommand('ping')"
+      --quiet
+  register: mongodb_ping
+  changed_when: false
+  no_log: "{{ mylab_nolog | default(true) }}"
+  failed_when: "'ok' not in mongodb_ping.stdout"
+
+- name: Report mongodb status
+  ansible.builtin.debug:
+    msg: "mongodb is healthy — ping: {{ mongodb_ping.stdout | trim }}"

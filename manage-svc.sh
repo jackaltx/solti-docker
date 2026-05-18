@@ -28,6 +28,8 @@ SUPPORTED_SERVICES=(
     obsidian
     jellyfin
     traefik
+    rustfs
+    mongodb
 )
 
 SUPPORTED_ACTIONS=(prepare deploy remove)

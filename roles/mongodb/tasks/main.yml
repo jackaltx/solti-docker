@@ -1,0 +1,36 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "mongodb_state must be one of: prepare, present, absent"
+  when: mongodb_state not in ['prepare', 'present', 'absent']
+
+- name: Validate required secrets
+  ansible.builtin.fail:
+    msg: "MONGODB_ROOT_PASSWORD env var must be set before deploying mongodb"
+  when:
+    - mongodb_state == 'present'
+    - mongodb_root_password == ''
+
+- name: Prepare MongoDB
+  when: mongodb_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy MongoDB
+  when: mongodb_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove MongoDB
+  when: mongodb_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent
