@@ -1,0 +1,41 @@
+# Ansible managed — do not edit directly
+networks:
+{% for net in traefik_networks %}
+  {{ net.name }}:
+    name: {{ net.name }}
+    driver: bridge
+{% if net.subnet != '' %}
+    ipam:
+      config:
+        - subnet: {{ net.subnet }}
+{% endif %}
+{% endfor %}
+
+services:
+  traefik:
+    image: {{ traefik_image }}
+    container_name: traefik
+    restart: unless-stopped
+    networks:
+{% for net in traefik_networks %}
+      - {{ net.name }}
+{% endfor %}
+    ports:
+      - "{{ traefik_bind_ip }}:{{ traefik_http_port }}:8080"
+      - "{{ traefik_bind_ip }}:{{ traefik_https_port }}:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ service_properties.stack_dir }}/traefik.yml:/etc/traefik/traefik.yml:ro
+      - {{ service_properties.stack_dir }}/acme:/acme
+      - {{ service_properties.stack_dir }}/log:/var/log/traefik
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - {{ service_properties.secrets_file }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`{{ traefik_host }}.{{ domain }}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users={{ traefik_dashboard_auth | replace('$', '$$') }}"

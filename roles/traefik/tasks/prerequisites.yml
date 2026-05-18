@@ -1,0 +1,8 @@
+---
+- name: Template traefik.yml static config
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: "{{ service_properties.stack_dir }}/traefik.yml"
+    owner: "{{ install_root_owner }}"
+    mode: "0644"
+  notify: restart traefik

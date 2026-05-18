@@ -1,0 +1,38 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "traefik_state must be one of: prepare, present, absent"
+  when: traefik_state not in ['prepare', 'present', 'absent']
+
+- name: Validate required secrets
+  ansible.builtin.fail:
+    msg: "LINODE_TOKEN and TRAEFIK_DASHBOARD_AUTH env vars must be set"
+  when:
+    - traefik_state == 'present'
+    - traefik_linode_token == '' or traefik_dashboard_auth == ''
+
+- name: Prepare Traefik
+  when: traefik_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy Traefik
+  when: traefik_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: prerequisites.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove Traefik
+  when: traefik_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

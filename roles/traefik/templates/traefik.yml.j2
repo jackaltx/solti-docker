@@ -1,0 +1,45 @@
+# Ansible managed — do not edit directly
+api:
+  dashboard: true
+  insecure: true
+
+entryPoints:
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: {{ traefik_acme_email }}
+      storage: /acme/acme.json
+      dnsChallenge:
+        provider: linode
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: backend_storage
+
+log:
+  level: {{ traefik_log_level }}
+
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: json
+  filters:
+    statusCodes:
+      - "200"
+      - "400-404"
+      - "500-503"
+  fields:
+    names:
+      ClientUsername: drop
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: redact
+        Authorization: drop

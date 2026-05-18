@@ -1,0 +1,40 @@
+---
+- name: Check traefik container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: traefik
+  register: traefik_info
+
+- name: Assert traefik is running
+  ansible.builtin.assert:
+    that: traefik_info.container.State.Status == 'running'
+    fail_msg: "traefik container is not running (status: {{ traefik_info.container.State.Status }})"
+
+- name: Verify Docker networks exist
+  become: "{{ docker_become }}"
+  community.docker.docker_network_info:
+    name: "{{ item.name }}"
+  register: net_info
+  loop: "{{ traefik_networks }}"
+
+- name: Assert all networks are present
+  ansible.builtin.assert:
+    that: item.network is defined
+    fail_msg: "Docker network '{{ item.item.name }}' is missing"
+  loop: "{{ net_info.results }}"
+
+- name: Check traefik dashboard is reachable
+  ansible.builtin.uri:
+    url: "http://{{ traefik_bind_ip }}:{{ traefik_http_port }}/api/version"
+    status_code: 200
+  register: traefik_api
+  failed_when: false
+
+- name: Assert traefik API responded
+  ansible.builtin.assert:
+    that: traefik_api.status == 200
+    fail_msg: "traefik API not reachable at http://{{ traefik_bind_ip }}:{{ traefik_http_port }}/api/version"
+
+- name: Report traefik status
+  ansible.builtin.debug:
+    msg: "traefik is running — version: {{ (traefik_api.json.Version | default('unknown')) }}"

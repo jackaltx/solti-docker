@@ -26,6 +26,7 @@ SUPPORTED_SERVICES=(
     minio
     conduit
     obsidian
+    traefik
 )
 
 SUPPORTED_ACTIONS=(prepare deploy remove)

@@ -1,0 +1,8 @@
+---
+- name: restart traefik
+  become: "{{ docker_become }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ service_properties.project_dir }}"
+    state: present
+    recreate: always
+  listen: "restart traefik"

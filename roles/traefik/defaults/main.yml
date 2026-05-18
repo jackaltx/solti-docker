@@ -1,0 +1,44 @@
+---
+traefik_state: present
+
+traefik_image: "traefik:latest"
+traefik_host: "docker"
+traefik_bind_ip: "127.0.0.1"
+traefik_http_port: "80"
+traefik_https_port: "443"
+
+traefik_acme_email: "admin@example.com"
+traefik_log_level: "WARN"
+
+# Raw bcrypt hash — template escapes $ to $$ for compose label parsing.
+# Generate with: echo $(htpasswd -nb user password) | sed -e s/\\$/\\$\\$/g
+# Store actual hash (single $) in env: export TRAEFIK_DASHBOARD_AUTH='user:$apr1$...'
+traefik_dashboard_auth: "{{ lookup('env', 'TRAEFIK_DASHBOARD_AUTH') }}"
+
+# Linode DNS API token for Let's Encrypt DNS challenge
+traefik_linode_token: "{{ lookup('env', 'LINODE_TOKEN') }}"
+
+# Networks created by traefik — other services reference these as external: true
+traefik_networks:
+  - name: "backend_storage"
+    subnet: "172.20.42.0/24"
+  - name: "backend_media"
+    subnet: "172.20.43.0/24"
+  - name: "traefik_public"
+    subnet: ""
+
+service_properties:
+  name: "traefik"
+  project_dir: "{{ install_root }}/Projects/traefik3"
+  stack_dir: "{{ install_root }}/Stacks/traefik"
+  secrets_file: "{{ install_root }}/Secrets/traefik.env"
+  container_names:
+    - "traefik"
+  compose_networks: []
+  dirs:
+    - {path: "acme", mode: "0700"}
+    - {path: "log",  mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ traefik_image }}"
