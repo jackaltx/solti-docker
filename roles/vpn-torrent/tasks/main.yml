@@ -1,0 +1,36 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "vpn_torrent_state must be one of: prepare, present, absent"
+  when: vpn_torrent_state not in ['prepare', 'present', 'absent']
+
+- name: Validate required secrets
+  ansible.builtin.fail:
+    msg: "OPENVPN_USER and OPENVPN_PASSWORD env vars must be set before deploying vpn-torrent"
+  when:
+    - vpn_torrent_state == 'present'
+    - vpn_torrent_vpn_user == '' or vpn_torrent_vpn_password == ''
+
+- name: Prepare vpn-torrent
+  when: vpn_torrent_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy vpn-torrent
+  when: vpn_torrent_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/secrets.yml"
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove vpn-torrent
+  when: vpn_torrent_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

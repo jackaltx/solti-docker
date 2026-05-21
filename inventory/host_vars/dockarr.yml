@@ -1,0 +1,44 @@
+---
+# ── Connection ────────────────────────────────────────────────────────────────
+ansible_host: 192.168.101.7
+ansible_user: lavender
+ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+# ── Host config ───────────────────────────────────────────────────────────────
+docker_become: false
+install_root: "/home/lavender/Docker"
+install_root_owner: "lavender"
+install_root_group: "lavender"
+
+# ── Service hostnames ─────────────────────────────────────────────────────────
+traefik_host: "docker1"
+traefik_bind_ip: "192.168.101.7"
+
+redis_host: "redis-true"
+redis_ui_host: "redis-true-ui"
+redis_insight_host: "redis-insight"
+
+dozzle_host: "dozzle1"
+cyberchef_host: "cyberchef1"
+it_tools_host: "it-tools1"
+ladder_host: "ladder"
+freshrss_host: "rss1"
+homarr_host: "home1"
+arcane_host: "arcane1"
+conduit_host: "conduit1"
+obsidian_host: "obsidian1"
+
+gitea_host: "gitea1"
+gitea_bind_ip: "192.168.101.7"
+gitea_ssh_port: "2222"
+
+minio_api_host: "s3-true"
+minio_console_host: "minio-true"
+
+rustfs_api_host: "rustfs1"
+rustfs_console_host: "rustfs-console1"
+
+mongodb_express_host: "mongo-express1"
+
+jellyfin_host: "jellyfin1"
+jellyfin_media_root: "/home/lavender/Media"

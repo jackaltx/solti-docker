@@ -1,0 +1,3 @@
+---
+vpn_torrent_vpn_user: "{{ lookup('env', 'OPENVPN_USER') }}"
+vpn_torrent_vpn_password: "{{ lookup('env', 'OPENVPN_PASSWORD') }}"

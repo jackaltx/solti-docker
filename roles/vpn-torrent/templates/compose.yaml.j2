@@ -1,0 +1,64 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+
+  # ── VPN gateway ────────────────────────────────────────────────────────────
+  # qbittorrent runs in gluetun's network namespace (kill-switch).
+  # Traefik labels live here since gluetun owns the network stack.
+  gluetun:
+    image: {{ vpn_torrent_gluetun_image }}
+    container_name: gluetun
+    hostname: gluetun
+    restart: unless-stopped
+    networks:
+      - backend_media
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/gluetun:/gluetun
+    env_file:
+      - {{ service_properties.secrets_file }}
+    environment:
+      - VPN_SERVICE_PROVIDER={{ vpn_torrent_vpn_provider }}
+      - VPN_TYPE={{ vpn_torrent_vpn_type }}
+      - SERVER_REGION={{ vpn_torrent_server_region }}
+      - PORT_FORWARD_ONLY=true
+      - VPN_PORT_FORWARDING={{ vpn_torrent_port_forwarding }}
+      - UPDATER_PERIOD={{ vpn_torrent_updater_period }}
+      - DNS_UPSTREAM_RESOLVERS={{ vpn_torrent_dns_resolvers }}
+      - BLOCK_MALICIOUS={{ vpn_torrent_block_malicious }}
+      - BLOCK_SURVEILLANCE={{ vpn_torrent_block_surveillance }}
+      - BLOCK_IPV6={{ vpn_torrent_block_ipv6 }}
+      - FIREWALL_OUTBOUND_SUBNETS={{ vpn_torrent_firewall_subnets }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.qbittorrent.rule=Host(`{{ vpn_torrent_qbit_host }}.{{ domain }}`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port={{ vpn_torrent_qbit_port }}"
+
+  # ── Torrent client (behind VPN kill-switch) ────────────────────────────────
+  qbittorrent:
+    image: {{ vpn_torrent_qbittorrent_image }}
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+      - WEBUI_PORT={{ vpn_torrent_qbit_port }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/qbittorrent:/config
+      - {{ vpn_torrent_media_root }}/downloads:/downloads

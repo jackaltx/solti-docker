@@ -1,0 +1,25 @@
+---
+# ── Connection ────────────────────────────────────────────────────────────────
+ansible_host: 192.168.40.6
+ansible_user: lavadmin
+ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+# ── Host config ───────────────────────────────────────────────────────────────
+docker_become: true
+install_root: "/mnt/zpool/Docker"
+install_root_owner: "568"
+install_root_group: "568"
+
+# LinuxServer.io images use the apps user on TrueNAS
+service_puid: "568"
+service_pgid: "568"
+
+# ── Service hostnames ─────────────────────────────────────────────────────────
+vpn_torrent_qbit_host: "qbit"
+vpn_torrent_media_root: "/mnt/zpool/Media"
+vpn_torrent_firewall_subnets: "172.20.43.0/24"
+
+arr_radarr_host: "radarr"
+arr_sonarr_host: "sonarr"
+arr_prowlarr_host: "prowlarr"
+arr_media_root: "/mnt/zpool/Media"

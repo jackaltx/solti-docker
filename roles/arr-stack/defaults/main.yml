@@ -1,0 +1,44 @@
+---
+arr_stack_state: present
+
+arr_radarr_image: "lscr.io/linuxserver/radarr:latest"
+arr_sonarr_image: "lscr.io/linuxserver/sonarr:latest"
+arr_prowlarr_image: "lscr.io/linuxserver/prowlarr:latest"
+arr_flaresolverr_image: "ghcr.io/flaresolverr/flaresolverr:latest"
+
+# Traefik hostnames — override per host in hosts.yml
+arr_radarr_host: "radarr"
+arr_sonarr_host: "sonarr"
+arr_prowlarr_host: "prowlarr"
+
+# Internal service ports
+arr_radarr_port: 7878
+arr_sonarr_port: 8989
+arr_prowlarr_port: 9696
+arr_flaresolverr_port: 8191
+
+# Media root — override per host; TrueNAS sets /mnt/zpool/Media in hosts.yml
+arr_media_root: "{{ install_root }}/Media"
+
+service_properties:
+  name: "arr-stack"
+  project_dir: "{{ install_root }}/Projects/arr-stack"
+  stack_dir: "{{ install_root }}/Stacks/arr-stack"
+  container_names:
+    - "radarr"
+    - "sonarr"
+    - "prowlarr"
+    - "flaresolverr"
+  compose_networks:
+    - "backend_media"
+  dirs:
+    - {path: "radarr", mode: "0755"}
+    - {path: "sonarr", mode: "0755"}
+    - {path: "prowlarr", mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ arr_radarr_image }}"
+    - "{{ arr_sonarr_image }}"
+    - "{{ arr_prowlarr_image }}"
+    - "{{ arr_flaresolverr_image }}"

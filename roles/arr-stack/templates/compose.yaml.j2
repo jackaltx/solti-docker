@@ -1,0 +1,82 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_media:
+    external: true
+
+services:
+
+  radarr:
+    image: {{ arr_radarr_image }}
+    container_name: radarr
+    restart: unless-stopped
+    networks:
+      - backend_media
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/radarr:/config
+      - {{ arr_media_root }}:/media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.radarr.rule=Host(`{{ arr_radarr_host }}.{{ domain }}`)"
+      - "traefik.http.routers.radarr.entrypoints=websecure"
+      - "traefik.http.routers.radarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.radarr.loadbalancer.server.port={{ arr_radarr_port }}"
+
+  sonarr:
+    image: {{ arr_sonarr_image }}
+    container_name: sonarr
+    restart: unless-stopped
+    networks:
+      - backend_media
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/sonarr:/config
+      - {{ arr_media_root }}:/media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.sonarr.rule=Host(`{{ arr_sonarr_host }}.{{ domain }}`)"
+      - "traefik.http.routers.sonarr.entrypoints=websecure"
+      - "traefik.http.routers.sonarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.sonarr.loadbalancer.server.port={{ arr_sonarr_port }}"
+
+  prowlarr:
+    image: {{ arr_prowlarr_image }}
+    container_name: prowlarr
+    restart: unless-stopped
+    networks:
+      - backend_media
+    environment:
+      - PUID={{ service_puid }}
+      - PGID={{ service_pgid }}
+      - TZ={{ service_tz }}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ service_properties.stack_dir }}/prowlarr:/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_media"
+      - "traefik.http.routers.prowlarr.rule=Host(`{{ arr_prowlarr_host }}.{{ domain }}`)"
+      - "traefik.http.routers.prowlarr.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr.tls.certresolver=letsencrypt"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port={{ arr_prowlarr_port }}"
+
+  # ── Cloudflare bypass proxy (used by Prowlarr for protected indexers) ──────
+  flaresolverr:
+    image: {{ arr_flaresolverr_image }}
+    container_name: flaresolverr
+    restart: unless-stopped
+    networks:
+      - backend_media
+    environment:
+      - TZ={{ service_tz }}
+      - LOG_LEVEL=info

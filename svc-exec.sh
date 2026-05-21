@@ -27,6 +27,8 @@ SUPPORTED_SERVICES=(
     traefik
     rustfs
     mongodb
+    arr-stack
+    vpn-torrent
 )
 
 usage() {

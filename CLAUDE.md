@@ -6,20 +6,28 @@ Ansible push-configured collection. Eliminates drift across dockarr and TrueNAS.
 ## Core Commands
 
 ```bash
-# Service lifecycle
-./manage-svc.sh <service> prepare          # Create directories (one-time)
-./manage-svc.sh <service> deploy           # Template + docker compose up
-./manage-svc.sh <service> remove           # docker compose down + cleanup
+# Service lifecycle (svc-manage.sh replaces manage-svc.sh + svc-exec.sh)
+./svc-manage.sh <service> prepare          # Create directories (one-time)
+./svc-manage.sh <service> deploy           # Template + docker compose up
+./svc-manage.sh <service> remove           # docker compose down + cleanup
 
 # Target a specific host
-./manage-svc.sh -h truenas <service> deploy
+./svc-manage.sh -h truenas <service> deploy
 
 # Remove including data
-DELETE_DATA=true ./manage-svc.sh <service> remove
+DELETE_DATA=true ./svc-manage.sh <service> remove
 
-# Functional verification (separate from deploy smoke test)
-./svc-exec.sh <service> verify
-./svc-exec.sh -h truenas <service> verify
+# Task commands (verify, configure, any tasks_from file)
+./svc-manage.sh <service> verify
+./svc-manage.sh -h truenas <service> verify
+
+# Pass extra vars
+./svc-manage.sh <service> deploy -e some_var=value
+
+# Skip confirmation prompt
+./svc-manage.sh -y <service> deploy
+
+# Old scripts (manage-svc.sh, svc-exec.sh) preserved but superseded
 ```
 
 ## Supported Services

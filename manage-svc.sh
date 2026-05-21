@@ -30,6 +30,8 @@ SUPPORTED_SERVICES=(
     traefik
     rustfs
     mongodb
+    arr-stack
+    vpn-torrent
 )
 
 SUPPORTED_ACTIONS=(prepare deploy remove)

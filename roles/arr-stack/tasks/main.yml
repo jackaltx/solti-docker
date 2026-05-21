@@ -1,0 +1,27 @@
+---
+- name: Validate state parameter
+  ansible.builtin.fail:
+    msg: "arr_stack_state must be one of: prepare, present, absent"
+  when: arr_stack_state not in ['prepare', 'present', 'absent']
+
+- name: Prepare arr-stack
+  when: arr_stack_state == 'prepare'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/prepare.yml"
+
+- name: Deploy arr-stack
+  when: arr_stack_state == 'present'
+  block:
+    - ansible.builtin.include_tasks:
+        file: prepare.yml
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/compose_deploy.yml"
+
+- name: Remove arr-stack
+  when: arr_stack_state == 'absent'
+  block:
+    - ansible.builtin.include_tasks:
+        file: "../_base/tasks/cleanup.yml"
+      vars:
+        service_state: absent

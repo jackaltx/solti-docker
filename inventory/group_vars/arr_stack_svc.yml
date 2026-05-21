@@ -1,0 +1,2 @@
+---
+# No shared secrets — radarr/sonarr/prowlarr generate their own API keys on first run

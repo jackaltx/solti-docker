@@ -1,0 +1,50 @@
+---
+vpn_torrent_state: present
+
+vpn_torrent_gluetun_image: "qmcgaw/gluetun:latest"
+vpn_torrent_qbittorrent_image: "lscr.io/linuxserver/qbittorrent:latest"
+
+# VPN credentials — export OPENVPN_USER=... OPENVPN_PASSWORD=... before running
+vpn_torrent_vpn_user: "{{ lookup('env', 'OPENVPN_USER') }}"
+vpn_torrent_vpn_password: "{{ lookup('env', 'OPENVPN_PASSWORD') }}"
+
+# VPN provider settings
+vpn_torrent_vpn_provider: "private internet access"
+vpn_torrent_vpn_type: "openvpn"
+vpn_torrent_server_region: "Austria,DE Frankfurt,ES Madrid,Estonia,Croatia"
+vpn_torrent_port_forwarding: "on"
+vpn_torrent_updater_period: "4h"
+
+# DNS and firewall settings inside gluetun
+vpn_torrent_dns_resolvers: "quad9 secured"
+vpn_torrent_block_malicious: "on"
+vpn_torrent_block_surveillance: "on"
+vpn_torrent_block_ipv6: "on"
+# Allow arr containers on backend_media to reach qbittorrent through gluetun
+vpn_torrent_firewall_subnets: "172.20.43.0/24"
+
+# qbittorrent Traefik hostname — override per host in hosts.yml
+vpn_torrent_qbit_host: "qbit"
+vpn_torrent_qbit_port: 8085
+
+# Media root — override per host; TrueNAS sets /mnt/zpool/Media in hosts.yml
+vpn_torrent_media_root: "{{ install_root }}/Media"
+
+service_properties:
+  name: "vpn-torrent"
+  project_dir: "{{ install_root }}/Projects/vpn-torrent"
+  stack_dir: "{{ install_root }}/Stacks/vpn-torrent"
+  secrets_file: "{{ install_root }}/Secrets/vpn-torrent.env"
+  container_names:
+    - "gluetun"
+    - "qbittorrent"
+  compose_networks:
+    - "backend_media"
+  dirs:
+    - {path: "gluetun", mode: "0755"}
+    - {path: "qbittorrent", mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ vpn_torrent_gluetun_image }}"
+    - "{{ vpn_torrent_qbittorrent_image }}"

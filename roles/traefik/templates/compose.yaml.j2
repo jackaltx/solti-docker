@@ -21,7 +21,7 @@ services:
       - {{ net.name }}
 {% endfor %}
     ports:
-      - "{{ traefik_bind_ip }}:{{ traefik_http_port }}:8080"
+      - "{{ traefik_bind_ip }}:{{ traefik_http_port }}:80"
       - "{{ traefik_bind_ip }}:{{ traefik_https_port }}:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
