@@ -5,6 +5,7 @@ logs/
 .env
 .envrc
 inventory/group_vars/*.local.yml
+inventory/hosts/
 __pycache__/
 *.pyc
 .pytest_cache/

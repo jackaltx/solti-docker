@@ -1,0 +1,125 @@
+---
+# _example.yml — template for adding a new host
+#
+# USAGE:
+#   cp inventory/_example.yml inventory/hosts/myhostname.yml
+#   Edit the copy — fill in real values, uncomment the services this host runs.
+#   inventory/hosts/ is gitignored so your file stays private.
+#
+# HOW IT WORKS:
+#   svc-manage.sh -i inventory/hosts/myhostname.yml redis deploy
+#   Ansible finds group_vars/ via the symlink at inventory/hosts/group_vars.
+#   Only services listed under "Service groups" below will be targeted.
+#
+# DNS / DOMAIN:
+#   Service hostnames below are SUBDOMAIN PREFIXES only, e.g. "redis".
+#   The full DNS name is built as: {{ hostname }}.{{ domain }}
+#   domain is set in group_vars/all.yml via the LAB_TLD environment variable:
+#     export LAB_TLD='yourdomain.com'   # add to ~/.secrets/LabProvision
+#   Result: redis.yourdomain.com, traefik.yourdomain.com, etc.
+#   You must have DNS CNAMEs or A records pointing these names at this host.
+
+all:
+  children:
+    docker_hosts:
+      hosts:
+        myhostname:
+
+          # ── Connection ────────────────────────────────────────────────────
+          ansible_host: 192.168.x.x
+          ansible_user: youruser
+          ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+
+          # ── Host config — Linux VM (no sudo needed for docker) ────────────
+          docker_become: false
+          install_root: "/home/youruser/Docker"
+          install_root_owner: "youruser"
+          install_root_group: "youruser"
+
+          # ── Host config — TrueNAS SCALE (uncomment and replace above) ─────
+          # docker_become: true
+          # install_root: "/mnt/zpool/Docker"
+          # install_root_owner: "568"
+          # install_root_group: "568"
+          # service_puid: "568"
+          # service_pgid: "568"
+
+          # ── Service hostnames — only include what this host runs ───────────
+          traefik_host: "docker"
+          traefik_bind_ip: "192.168.x.x"
+
+          redis_host: "redis"
+          redis_ui_host: "redis-ui"
+          redis_insight_host: "redis-insight"
+
+          dozzle_host: "dozzle"
+          cyberchef_host: "cyberchef"
+          it_tools_host: "it-tools"
+          ladder_host: "ladder"
+          freshrss_host: "rss"
+          homarr_host: "home"
+          arcane_host: "arcane"
+          conduit_host: "conduit"
+          obsidian_host: "obsidian"
+
+          gitea_host: "gitea"
+          gitea_bind_ip: "192.168.x.x"
+          gitea_ssh_port: "2222"
+
+          minio_api_host: "s3"
+          minio_console_host: "minio"
+
+          rustfs_api_host: "rustfs"
+          rustfs_console_host: "rustfs-console"
+
+          mongodb_express_host: "mongo-express"
+
+          jellyfin_host: "jellyfin"
+          jellyfin_media_root: "/home/youruser/Media"
+
+          vpn_torrent_qbit_host: "qbit"
+          vpn_torrent_media_root: "/path/to/Media"
+          vpn_torrent_firewall_subnets: "172.20.0.0/16"
+
+          arr_radarr_host: "radarr"
+          arr_sonarr_host: "sonarr"
+          arr_prowlarr_host: "prowlarr"
+          arr_media_root: "/path/to/Media"
+
+    # ── Service groups — uncomment every service this host runs ──────────────
+    # traefik_svc:
+    #   hosts: {myhostname:}
+    # redis_svc:
+    #   hosts: {myhostname:}
+    # dozzle_svc:
+    #   hosts: {myhostname:}
+    # cyberchef_svc:
+    #   hosts: {myhostname:}
+    # it_tools_svc:
+    #   hosts: {myhostname:}
+    # ladder_svc:
+    #   hosts: {myhostname:}
+    # freshrss_svc:
+    #   hosts: {myhostname:}
+    # homarr_svc:
+    #   hosts: {myhostname:}
+    # gitea_svc:
+    #   hosts: {myhostname:}
+    # arcane_svc:
+    #   hosts: {myhostname:}
+    # minio_svc:
+    #   hosts: {myhostname:}
+    # conduit_svc:
+    #   hosts: {myhostname:}
+    # obsidian_svc:
+    #   hosts: {myhostname:}
+    # rustfs_svc:
+    #   hosts: {myhostname:}
+    # mongodb_svc:
+    #   hosts: {myhostname:}
+    # jellyfin_svc:
+    #   hosts: {myhostname:}
+    # vpn_torrent_svc:
+    #   hosts: {myhostname:}
+    # arr_stack_svc:
+    #   hosts: {myhostname:}

@@ -24,7 +24,7 @@
 set -e
 
 ANSIBLE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-INVENTORY="${ANSIBLE_DIR}/inventory/hosts.yml"
+INVENTORY="${SOLTI_INVENTORY:-${ANSIBLE_DIR}/inventory/hosts}"
 TEMP_DIR="${ANSIBLE_DIR}/tmp"
 HOST=""
 YES_FLAG=false
@@ -75,7 +75,7 @@ usage() {
 Usage: $(basename "$0") [-i INVENTORY] [-h HOST] [-y] [-K] <service> <command> [options]
 
 Options:
-  -i INVENTORY   Inventory file (default: inventory/hosts.yml)
+  -i INVENTORY   Inventory file or directory (default: inventory/hosts/)
   -h HOST        Target host (default: all hosts in <service>_svc group)
   -y             Skip safety prompts
   -K             Prompt for sudo (task commands only; state commands auto-detect)
@@ -95,6 +95,7 @@ $(printf '  %s\n' "${SUPPORTED_SERVICES[@]}")
 
 Examples:
   $(basename "$0") redis deploy
+  $(basename "$0") -i inventory/hosts/dockarr.yml redis deploy
   $(basename "$0") -h truenas arr-stack deploy
   $(basename "$0") arr-stack verify
   DELETE_DATA=true $(basename "$0") arr-stack remove
@@ -207,7 +208,7 @@ shift 2
 EXTRA_ARGS=("$@")
 
 is_service_valid "$SERVICE" || { echo "Error: unknown service '${SERVICE}'"; usage; }
-[[ -f "$INVENTORY" ]] || { echo "Error: inventory not found: ${INVENTORY}"; exit 1; }
+[[ -f "$INVENTORY" || -d "$INVENTORY" ]] || { echo "Error: inventory not found: ${INVENTORY}"; exit 1; }
 
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 TEMP_PLAYBOOK="${TEMP_DIR}/${SERVICE}-${COMMAND}-${TIMESTAMP}.yml"

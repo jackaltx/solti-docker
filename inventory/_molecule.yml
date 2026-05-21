@@ -1,0 +1,42 @@
+---
+# _molecule.yml — CI / Molecule test inventory
+#
+# STATUS: Placeholder. DNS challenge (Let's Encrypt via Linode) blocks full CI.
+#
+# PATH FORWARD:
+#   - Traefik must deploy first (creates backend_storage and backend_media networks)
+#   - Run CoreDNS or dnsmasq on the CI runner for local DNS resolution
+#   - Use Pebble (test ACME server) instead of Let's Encrypt
+#   - Containers run via docker connection plugin (no SSH needed)
+#
+# USAGE (explicit — not included in directory scan due to _ prefix):
+#   ./svc-manage.sh -i inventory/_molecule.yml redis deploy
+
+all:
+  children:
+    docker_hosts:
+      hosts:
+        instance:
+          ansible_connection: docker
+          ansible_user: root
+
+          docker_become: false
+          install_root: "/opt/docker"
+          install_root_owner: "root"
+          install_root_group: "root"
+
+          # Placeholder hostnames — point at CI runner's local DNS
+          traefik_host: "traefik-ci"
+          traefik_bind_ip: "127.0.0.1"
+
+          redis_host: "redis-ci"
+          redis_ui_host: "redis-ui-ci"
+          redis_insight_host: "redis-insight-ci"
+
+    # Service groups — traefik first (creates Docker networks), then services
+    traefik_svc:
+      hosts:
+        instance:
+    redis_svc:
+      hosts:
+        instance:
