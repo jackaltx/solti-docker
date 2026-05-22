@@ -1,0 +1,19 @@
+title: "Docker Compose Services"
+section: "Services"
+subsection: "Docker"
+nav_order: 2
+description: "Ansible collection for managing Docker Compose services on any Linux host"
+
+sources:
+  - file: CLAUDE.md
+    sections:
+      - "Core Commands"
+      - "Architecture: Three Key Patterns"
+      - "Adding a New Service"
+      - "Known Gotchas"
+      - "Two Hosts"
+  - file: inventory/_example.yml
+    type: example
+    title: "Example Host Inventory"
+  - file: galaxy.yml
+    type: metadata

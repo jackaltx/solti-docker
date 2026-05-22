@@ -5,6 +5,12 @@ Ansible push-configured collection. Eliminates drift across dockarr and TrueNAS.
 
 ## Core Commands
 
+> **Surfacing to unified docs:** Update `solti-docs.yml` at the collection root
+> to declare which files and CLAUDE.md sections should appear on solti.jackaltx.com.
+> Local `docs/` detail stays local — only declare what matters to the suite-wide audience.
+> See [solti-docs/HARVEST.md](https://github.com/jackaltx/solti-docs/blob/main/HARVEST.md).
+
+
 ```bash
 # Service lifecycle (svc-manage.sh replaces manage-svc.sh + svc-exec.sh)
 ./svc-manage.sh <service> prepare          # Create directories (one-time)
