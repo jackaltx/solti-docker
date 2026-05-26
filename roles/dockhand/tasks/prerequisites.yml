@@ -1,0 +1,9 @@
+---
+# dockhand runs as install_root_owner — chown stack dir so it can write its database
+- name: Set dockhand stack dir ownership
+  become: true
+  ansible.builtin.file:
+    path: "{{ service_properties.stack_dir }}"
+    owner: "{{ install_root_owner }}"
+    group: "{{ install_root_group }}"
+    recurse: true

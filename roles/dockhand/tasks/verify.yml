@@ -1,0 +1,15 @@
+---
+- name: Check dockhand container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: dockhand
+  register: dockhand_info
+
+- name: Assert dockhand is running
+  ansible.builtin.assert:
+    that: dockhand_info.container.State.Status == 'running'
+    fail_msg: "dockhand container is not running (status: {{ dockhand_info.container.State.Status }})"
+
+- name: Report dockhand status
+  ansible.builtin.debug:
+    msg: "dockhand is running — uptime: {{ dockhand_info.container.State.StartedAt }}"

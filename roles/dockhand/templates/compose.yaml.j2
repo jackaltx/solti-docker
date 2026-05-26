@@ -1,0 +1,26 @@
+# Ansible managed — do not edit directly
+networks:
+  backend_storage:
+    external: true
+
+services:
+  dockhand:
+    image: {{ dockhand_image }}
+    container_name: dockhand
+    restart: unless-stopped
+    user: "{{ service_puid }}:{{ service_pgid }}"
+    group_add:
+      - "{{ docker_gid }}"
+    networks:
+      - backend_storage
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ service_properties.stack_dir }}/data:/app/data
+      - {{ install_root }}/Projects:/ansible-projects:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=backend_storage"
+      - "traefik.http.routers.dockhand.rule=Host(`{{ dockhand_host }}.{{ domain }}`)"
+      - "traefik.http.routers.dockhand.entrypoints=websecure"
+      - "traefik.http.routers.dockhand.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dockhand.loadbalancer.server.port={{ dockhand_port }}"

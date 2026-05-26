@@ -1,0 +1,6 @@
+---
+- ansible.builtin.include_tasks:
+    file: "../_base/tasks/prepare.yml"
+
+- ansible.builtin.include_tasks:
+    file: "prerequisites.yml"
