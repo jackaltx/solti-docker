@@ -26,5 +26,7 @@ services:
       - "traefik.docker.network=backend_storage"
       - "traefik.http.routers.obsidian.rule=Host(`{{ obsidian_host }}.{{ domain }}`)"
       - "traefik.http.routers.obsidian.entrypoints=websecure"
+      - "traefik.http.routers.obsidian.middlewares=obsidian-allowlist"
       - "traefik.http.routers.obsidian.tls.certresolver=letsencrypt"
       - "traefik.http.services.obsidian.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.obsidian-allowlist.ipallowlist.sourcerange={{ obsidian_allowlist_range }}"

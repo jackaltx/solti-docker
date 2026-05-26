@@ -3,6 +3,7 @@ obsidian_state: present
 
 obsidian_image: "lscr.io/linuxserver/obsidian:latest"
 obsidian_host: "obsidian1"
+obsidian_allowlist_range: "192.168.0.0/16"
 
 service_properties:
   name: "obsidian"
