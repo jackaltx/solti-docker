@@ -40,6 +40,7 @@ DELETE_DATA=true ./svc-manage.sh <service> remove
 
 | Service | Notes |
 |---------|-------|
+| dockhand | Docker Compose stack management UI (LinuxServer.io) |
 | redis   | redis + redis-commander + redis-insight |
 
 ## Architecture: Three Key Patterns
@@ -201,6 +202,23 @@ available inside verify tasks.
 **hyphenated service names**: `it-tools` style names require underscore
 conversion in two places in `manage-svc.sh` and `svc-exec.sh`: the `_svc`
 inventory group name and the `<service>_state` variable name.
+
+**docker socket + user directive**: When a role uses `user: "{{ service_puid }}:{{ service_pgid }}"`,
+also add `group_add: ["{{ docker_gid }}"]` so the process can read `/var/run/docker.sock`.
+`docker_gid` lives in each host's inventory vars (dockarr: `"994"`). Check with
+`getent group docker` on the host if unknown.
+
+**gluetun stale servers.json**: The gluetun Docker image bundles a pre-baked `servers.json`
+that can be months old. If the volume is seeded from the image layer rather than a live
+download, `UPDATER_PERIOD=4h` won't help — the updater runs after VPN connects, but VPN
+can't connect because the server list is stale (chicken-and-egg). Symptom: `EHOSTUNREACH`
+on startup, servers.json shows 500+ days old in logs. Fix: `rm Stacks/arr-stack/gluetun/servers.json`
+and restart — gluetun will fetch a fresh list. TODO: seed servers.json at deploy time via the role.
+
+**stale root-owned data**: If a container was ever started without `user:` and created files
+in its bind-mount path, those files will be owned by root. Switching to a non-root `user:`
+will cause `SQLITE_READONLY` or similar write failures. Fix: `ansible <host> -m command -b
+-a "chown -R <uid>:<gid> <Stacks/service/>"` before redeploying.
 
 ## Open Items for Review
 
