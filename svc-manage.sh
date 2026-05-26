@@ -40,6 +40,7 @@ SUPPORTED_STATES=("prepare" "deploy" "remove")
 
 SUPPORTED_SERVICES=(
     "redis"
+    "dockhand"
     "dozzle"
     "cyberchef"
     "it-tools"

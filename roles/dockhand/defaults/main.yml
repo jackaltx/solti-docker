@@ -1,0 +1,25 @@
+---
+dockhand_state: present
+
+dockhand_version: "latest"
+dockhand_freeze: false
+dockhand_image: "fnsys/dockhand:{{ dockhand_version }}"
+dockhand_host: "dockhand"
+dockhand_port: "3000"
+
+service_properties:
+  name: "dockhand"
+  freeze: "{{ dockhand_freeze }}"
+  project_dir: "{{ install_root }}/Projects/dockhand"
+  stack_dir: "{{ install_root }}/Stacks/dockhand"
+  secrets_file: "{{ install_root }}/Secrets/dockhand.env"
+  container_names:
+    - "dockhand"
+  compose_networks:
+    - "backend_storage"
+  dirs:
+    - {path: "data", mode: "0755"}
+  delete_data: "{{ lookup('env', 'DELETE_DATA') | default(false) | bool }}"
+  delete_images: "{{ lookup('env', 'DELETE_IMAGES') | default(false) | bool }}"
+  images:
+    - "{{ dockhand_image }}"

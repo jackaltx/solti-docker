@@ -1,11 +1,14 @@
 ---
 cyberchef_state: present
 
-cyberchef_image: "mpepping/cyberchef:latest"
+cyberchef_version: "latest"
+cyberchef_freeze: false
+cyberchef_image: "mpepping/cyberchef:{{ cyberchef_version }}"
 cyberchef_host: "cyberchef"
 
 service_properties:
   name: "cyberchef"
+  freeze: "{{ cyberchef_freeze }}"
   project_dir: "{{ install_root }}/Projects/cyberchef"
   stack_dir: "{{ install_root }}/Stacks/cyberchef"
   secrets_file: "{{ install_root }}/Secrets/cyberchef.env"

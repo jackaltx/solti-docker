@@ -1,0 +1,21 @@
+---
+- name: Get container info
+  become: "{{ docker_become }}"
+  community.docker.docker_container_info:
+    name: "{{ container_item }}"
+  register: container_info
+  loop: "{{ service_properties.container_names }}"
+  loop_control:
+    loop_var: container_item
+
+- name: Show service status
+  ansible.builtin.debug:
+    msg: >-
+      {{ container_item.container_item }}:
+      {{ container_item.container.State.Status | default('not found') }}
+      | image: {{ container_item.container.Config.Image | default('unknown') }}
+      | frozen: {{ service_properties.freeze | bool }}
+  loop: "{{ container_info.results }}"
+  loop_control:
+    loop_var: container_item
+    label: "{{ container_item.container_item }}"

@@ -1,0 +1,10 @@
+---
+- name: Upgrade all services on a host
+  hosts: "{{ target | default('all') }}"
+  gather_facts: false
+  tasks:
+    - name: Upgrade each managed service
+      ansible.builtin.include_role:
+        name: "{{ item | regex_replace('_svc$', '') | replace('_', '-') }}"
+        tasks_from: upgrade
+      loop: "{{ group_names | select('match', '.*_svc$') | list }}"

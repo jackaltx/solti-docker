@@ -1,11 +1,14 @@
 ---
 ladder_state: present
 
-ladder_image: "ghcr.io/wasi-master/13ft:latest"
+ladder_version: "latest"
+ladder_freeze: false
+ladder_image: "ghcr.io/wasi-master/13ft:{{ ladder_version }}"
 ladder_host: "ladder"
 
 service_properties:
   name: "ladder"
+  freeze: "{{ ladder_freeze }}"
   project_dir: "{{ install_root }}/Projects/13-ft-ladder"
   stack_dir: "{{ install_root }}/Stacks/ladder"
   secrets_file: "{{ install_root }}/Secrets/ladder.env"

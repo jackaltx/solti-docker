@@ -1,7 +1,9 @@
 ---
 homarr_state: present
 
-homarr_image: "ghcr.io/homarr-labs/homarr:latest"
+homarr_version: "latest"
+homarr_freeze: false
+homarr_image: "ghcr.io/homarr-labs/homarr:{{ homarr_version }}"
 homarr_host: "home"
 
 # SECRET_ENCRYPTION_KEY — set via: export HOMARR_SECRET_KEY=...
@@ -9,6 +11,7 @@ homarr_secret_key: "{{ lookup('env', 'HOMARR_SECRET_KEY') }}"
 
 service_properties:
   name: "homarr"
+  freeze: "{{ homarr_freeze }}"
   project_dir: "{{ install_root }}/Projects/homarr"
   stack_dir: "{{ install_root }}/Stacks/homarr"
   secrets_file: "{{ install_root }}/Secrets/homarr.env"

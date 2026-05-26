@@ -1,8 +1,11 @@
 ---
 vpn_torrent_state: present
 
-vpn_torrent_gluetun_image: "qmcgaw/gluetun:latest"
-vpn_torrent_qbittorrent_image: "lscr.io/linuxserver/qbittorrent:latest"
+vpn_torrent_gluetun_version: "latest"
+vpn_torrent_qbittorrent_version: "latest"
+vpn_torrent_freeze: false
+vpn_torrent_gluetun_image: "qmcgaw/gluetun:{{ vpn_torrent_gluetun_version }}"
+vpn_torrent_qbittorrent_image: "lscr.io/linuxserver/qbittorrent:{{ vpn_torrent_qbittorrent_version }}"
 
 # VPN credentials — export OPENVPN_USER=... OPENVPN_PASSWORD=... before running
 vpn_torrent_vpn_user: "{{ lookup('env', 'OPENVPN_USER') }}"
@@ -32,6 +35,7 @@ vpn_torrent_media_root: "{{ install_root }}/Media"
 
 service_properties:
   name: "vpn-torrent"
+  freeze: "{{ vpn_torrent_freeze }}"
   project_dir: "{{ install_root }}/Projects/vpn-torrent"
   stack_dir: "{{ install_root }}/Stacks/vpn-torrent"
   secrets_file: "{{ install_root }}/Secrets/vpn-torrent.env"

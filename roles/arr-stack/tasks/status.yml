@@ -1,0 +1,3 @@
+---
+- ansible.builtin.include_tasks:
+    file: "../_base/tasks/status.yml"

@@ -1,11 +1,14 @@
 ---
 freshrss_state: present
 
-freshrss_image: "lscr.io/linuxserver/freshrss:latest"
+freshrss_version: "latest"
+freshrss_freeze: false
+freshrss_image: "lscr.io/linuxserver/freshrss:{{ freshrss_version }}"
 freshrss_host: "rss"
 
 service_properties:
   name: "freshrss"
+  freeze: "{{ freshrss_freeze }}"
   project_dir: "{{ install_root }}/Projects/freshrss"
   stack_dir: "{{ install_root }}/Stacks/freshrss"
   secrets_file: "{{ install_root }}/Secrets/freshrss.env"

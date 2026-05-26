@@ -1,11 +1,14 @@
 ---
 it_tools_state: present
 
-it_tools_image: "corentinth/it-tools:latest"
+it_tools_version: "latest"
+it_tools_freeze: false
+it_tools_image: "corentinth/it-tools:{{ it_tools_version }}"
 it_tools_host: "it-tools"
 
 service_properties:
   name: "it-tools"
+  freeze: "{{ it_tools_freeze }}"
   project_dir: "{{ install_root }}/Projects/it-tools"
   stack_dir: "{{ install_root }}/Stacks/it-tools"
   secrets_file: "{{ install_root }}/Secrets/it-tools.env"

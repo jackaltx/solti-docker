@@ -1,7 +1,9 @@
 ---
 arcane_state: present
 
-arcane_image: "ghcr.io/getarcaneapp/arcane:latest"
+arcane_version: "latest"
+arcane_freeze: false
+arcane_image: "ghcr.io/getarcaneapp/arcane:{{ arcane_version }}"
 arcane_host: "arcane1"
 
 arcane_encryption_key: "{{ lookup('env', 'ARCANE_ENCRYPTION_KEY') }}"
@@ -9,6 +11,7 @@ arcane_jwt_secret: "{{ lookup('env', 'ARCANE_JWT_SECRET') }}"
 
 service_properties:
   name: "arcane"
+  freeze: "{{ arcane_freeze }}"
   project_dir: "{{ install_root }}/Projects/arcane"
   stack_dir: "{{ install_root }}/Stacks/arcane"
   secrets_file: "{{ install_root }}/Secrets/arcane.env"

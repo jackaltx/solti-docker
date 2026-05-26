@@ -1,16 +1,25 @@
 ---
+- name: Skip upgrade — service is frozen
+  ansible.builtin.debug:
+    msg: "{{ service_properties.name }} is frozen — skipping upgrade"
+  when: service_properties.freeze | bool
+
 - name: Pull latest images and force-recreate containers
   become: "{{ docker_become }}"
   community.docker.docker_compose_v2:
     project_src: "{{ service_properties.project_dir }}"
     pull: always
-    recreate: always
+    recreate: auto
     state: present
+  when: not service_properties.freeze | bool
 
 - name: Smoke test — confirm containers running after upgrade
   become: "{{ docker_become }}"
   community.docker.docker_container_info:
-    name: "{{ item }}"
+    name: "{{ container_item }}"
   register: smoke
   failed_when: smoke.container.State.Status != 'running'
   loop: "{{ service_properties.container_names }}"
+  loop_control:
+    loop_var: container_item
+  when: not service_properties.freeze | bool

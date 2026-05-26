@@ -1,7 +1,9 @@
 ---
 conduit_state: present
 
-conduit_image: "matrixconduit/matrix-conduit:latest"
+conduit_version: "latest"
+conduit_freeze: false
+conduit_image: "matrixconduit/matrix-conduit:{{ conduit_version }}"
 conduit_host: "conduit1"
 conduit_port: "6167"
 
@@ -13,6 +15,7 @@ conduit_trusted_servers: ["matrix.org"]
 
 service_properties:
   name: "conduit"
+  freeze: "{{ conduit_freeze }}"
   project_dir: "{{ install_root }}/Projects/conduit"
   stack_dir: "{{ install_root }}/Stacks/conduit"
   secrets_file: "{{ install_root }}/Secrets/conduit.env"

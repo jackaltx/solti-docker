@@ -1,13 +1,16 @@
 ---
 gitea_state: present
 
-gitea_image: "gitea/gitea:latest"
+gitea_version: "latest"
+gitea_freeze: false
+gitea_image: "gitea/gitea:{{ gitea_version }}"
 gitea_host: "gitea"
 gitea_ssh_port: "2222"
 gitea_bind_ip: "127.0.0.1"
 
 service_properties:
   name: "gitea"
+  freeze: "{{ gitea_freeze }}"
   project_dir: "{{ install_root }}/Projects/gitea"
   stack_dir: "{{ install_root }}/Stacks/gitea"
   secrets_file: "{{ install_root }}/Secrets/gitea.env"

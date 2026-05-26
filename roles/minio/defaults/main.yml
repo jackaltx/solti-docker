@@ -1,7 +1,9 @@
 ---
 minio_state: present
 
-minio_image: "minio/minio:latest"
+minio_version: "latest"
+minio_freeze: false
+minio_image: "minio/minio:{{ minio_version }}"
 minio_api_host: "s3-true"
 minio_console_host: "minio-true"
 
@@ -10,6 +12,7 @@ minio_root_password: "{{ lookup('env', 'MINIO_ROOT_PASSWORD') }}"
 
 service_properties:
   name: "minio"
+  freeze: "{{ minio_freeze }}"
   project_dir: "{{ install_root }}/Projects/minio"
   stack_dir: "{{ install_root }}/Stacks/minio"
   secrets_file: "{{ install_root }}/Secrets/minio.env"

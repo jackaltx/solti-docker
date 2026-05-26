@@ -1,10 +1,15 @@
 ---
 arr_stack_state: present
 
-arr_radarr_image: "lscr.io/linuxserver/radarr:latest"
-arr_sonarr_image: "lscr.io/linuxserver/sonarr:latest"
-arr_prowlarr_image: "lscr.io/linuxserver/prowlarr:latest"
-arr_flaresolverr_image: "ghcr.io/flaresolverr/flaresolverr:latest"
+arr_radarr_version: "latest"
+arr_sonarr_version: "latest"
+arr_prowlarr_version: "latest"
+arr_flaresolverr_version: "latest"
+arr_freeze: false
+arr_radarr_image: "lscr.io/linuxserver/radarr:{{ arr_radarr_version }}"
+arr_sonarr_image: "lscr.io/linuxserver/sonarr:{{ arr_sonarr_version }}"
+arr_prowlarr_image: "lscr.io/linuxserver/prowlarr:{{ arr_prowlarr_version }}"
+arr_flaresolverr_image: "ghcr.io/flaresolverr/flaresolverr:{{ arr_flaresolverr_version }}"
 
 # Traefik hostnames — override per host in hosts.yml
 arr_radarr_host: "radarr"
@@ -22,6 +27,7 @@ arr_media_root: "{{ install_root }}/Media"
 
 service_properties:
   name: "arr-stack"
+  freeze: "{{ arr_freeze }}"
   project_dir: "{{ install_root }}/Projects/arr-stack"
   stack_dir: "{{ install_root }}/Stacks/arr-stack"
   container_names:

@@ -1,7 +1,9 @@
 ---
 dozzle_state: present
 
-dozzle_image: "amir20/dozzle:latest"
+dozzle_version: "latest"
+dozzle_freeze: false
+dozzle_image: "amir20/dozzle:{{ dozzle_version }}"
 dozzle_host: "dozzle"
 
 dozzle_level: "info"
@@ -10,6 +12,7 @@ dozzle_filter: "status=running"
 
 service_properties:
   name: "dozzle"
+  freeze: "{{ dozzle_freeze }}"
   project_dir: "{{ install_root }}/Projects/dozzle"
   stack_dir: "{{ install_root }}/Stacks/dozzle"
   secrets_file: "{{ install_root }}/Secrets/dozzle.env"

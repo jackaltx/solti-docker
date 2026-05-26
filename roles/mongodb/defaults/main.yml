@@ -1,8 +1,11 @@
 ---
 mongodb_state: present
 
-mongodb_image: "mongo:latest"
-mongodb_express_image: "mongo-express:latest"
+mongodb_version: "latest"
+mongodb_express_version: "latest"
+mongodb_freeze: false
+mongodb_image: "mongo:{{ mongodb_version }}"
+mongodb_express_image: "mongo-express:{{ mongodb_express_version }}"
 
 # Credentials via shell env: export MONGODB_ROOT_USER=... MONGODB_ROOT_PASSWORD=...
 mongodb_root_user: "{{ lookup('env', 'MONGODB_ROOT_USER') | default('mongoadmin') }}"
@@ -17,6 +20,7 @@ mongodb_host_port: ""
 
 service_properties:
   name: "mongodb"
+  freeze: "{{ mongodb_freeze }}"
   project_dir: "{{ install_root }}/Projects/mongodb"
   stack_dir: "{{ install_root }}/Stacks/mongodb"
   secrets_file: "{{ install_root }}/Secrets/mongodb.env"

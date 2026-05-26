@@ -1,12 +1,15 @@
 ---
 obsidian_state: present
 
-obsidian_image: "lscr.io/linuxserver/obsidian:latest"
+obsidian_version: "latest"
+obsidian_freeze: false
+obsidian_image: "lscr.io/linuxserver/obsidian:{{ obsidian_version }}"
 obsidian_host: "obsidian1"
 obsidian_allowlist_range: "192.168.0.0/16"
 
 service_properties:
   name: "obsidian"
+  freeze: "{{ obsidian_freeze }}"
   project_dir: "{{ install_root }}/Projects/obsidian"
   stack_dir: "{{ install_root }}/Stacks/obsidian"
   secrets_file: "{{ install_root }}/Secrets/obsidian.env"

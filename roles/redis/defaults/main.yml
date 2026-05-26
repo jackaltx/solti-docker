@@ -1,9 +1,13 @@
 ---
 redis_state: present
 
-redis_image: "redis:latest"
-redis_commander_image: "ghcr.io/joeferner/redis-commander:latest"
-redis_insight_image: "redis/redisinsight:latest"
+redis_version: "latest"
+redis_commander_version: "latest"
+redis_insight_version: "latest"
+redis_freeze: false
+redis_image: "redis:{{ redis_version }}"
+redis_commander_image: "ghcr.io/joeferner/redis-commander:{{ redis_commander_version }}"
+redis_insight_image: "redis/redisinsight:{{ redis_insight_version }}"
 
 redis_enable_commander: true
 redis_enable_insight: true
@@ -19,6 +23,7 @@ redis_password: "{{ lookup('env', 'REDIS_PASSWORD') | default('') }}"
 
 service_properties:
   name: "redis"
+  freeze: "{{ redis_freeze }}"
   project_dir: "{{ install_root }}/Projects/redis"
   stack_dir: "{{ install_root }}/Stacks/redis"
   secrets_file: "{{ install_root }}/Secrets/redis.env"

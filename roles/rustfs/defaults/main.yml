@@ -1,7 +1,9 @@
 ---
 rustfs_state: present
 
-rustfs_image: "rustfs/rustfs:latest"
+rustfs_version: "latest"
+rustfs_freeze: false
+rustfs_image: "rustfs/rustfs:{{ rustfs_version }}"
 rustfs_api_host: "rustfs"
 rustfs_console_host: "rustfs-console"
 
@@ -11,6 +13,7 @@ rustfs_secret_key: "{{ lookup('env', 'RUSTFS_SECRET_KEY') }}"
 
 service_properties:
   name: "rustfs"
+  freeze: "{{ rustfs_freeze }}"
   project_dir: "{{ install_root }}/Projects/rustfs"
   stack_dir: "{{ install_root }}/Stacks/rustfs"
   secrets_file: "{{ install_root }}/Secrets/rustfs.env"
